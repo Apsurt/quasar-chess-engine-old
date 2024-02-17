@@ -12,3 +12,6 @@ class InvalidPieceError(BaseChessError):
 
 class InvalidPieceTypeError(BaseChessError):
     pass
+
+class EmptyPositionError(BaseChessError):
+    pass
