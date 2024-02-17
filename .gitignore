@@ -1,0 +1,6 @@
+/bin
+/include
+/lib
+/research
+pyvenv.cfg
+.DS_Store
