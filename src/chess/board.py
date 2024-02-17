@@ -1,9 +1,37 @@
 from point import Point
+from pieces import Piece, PieceFactory, Color, PieceName
+from utils import fen_to_piece_name
+from logger import logger
+
 import math
 class Board:
     def __init__(self) -> None:
+        self.none_piece = Piece()
         self.pieces = []
+        self.captured_pieces = []
+        self.moves = []
+
+        self.factory = PieceFactory()
+        
         self.last_concentration = Point(0, 0)
+    
+    def create_piece(self, name, position, color):
+        piece = self.factory.create_piece(name, position, color)
+        self.add_piece(piece)
+        return piece
+    
+    def load_fen(self, fen):
+        placement, turn, castling, en_passant, halfmove, fullmove = fen.split(" ")
+        placement = placement.split("/")
+        for y, row in enumerate(placement):
+            y = 8 - y
+            for x, char in enumerate(row):
+                if char.isdigit():
+                    x += int(char)
+                else:
+                    color = Color.WHITE if char.isupper() else Color.BLACK
+                    piece_name = PieceName[fen_to_piece_name(char)]
+                    self.create_piece(piece_name, Point(x+1, y), color)
     
     def get_pieces(self):
         return self.pieces
@@ -27,5 +55,61 @@ class Board:
         self.last_concentration = new_concentration
         return self.last_concentration
     
+    def get_white_pieces(self):
+        return [piece for piece in self.pieces if piece.get_color() == Color.WHITE]
+
+    def get_black_pieces(self):
+        return [piece for piece in self.pieces if piece.get_color() == Color.BLACK]
+    
+    def get_piece_at(self, position):
+        self.pieces.sort(key=lambda x: x.get_position() == position, reverse=True)
+        for piece in self.pieces:
+            if piece.get_position() == position:
+                return piece
+        return self.none_piece
+    
+    def capture(self, piece):
+        self.captured_pieces.append(piece)
+        self.pieces.remove(piece)
+    
     def make_move(self, move):
-        pass
+        self.moves.append(move)
+
+        move.moved = self.get_piece_at(move.source)
+        moved = move.moved
+        move.captured = self.get_piece_at(move.target)
+        captured = move.captured
+
+        if moved.get_color() == captured.get_color():
+            logger.warning("Capture of same color piece")
+            move.legal = False
+        
+        if not moved.is_move_legal(move):
+            logger.warning("Illegal move")
+            move.legal = False
+        
+        if move.legal:
+            moved.set_position(move.target)
+            if captured != self.none_piece:
+                self.capture(move.captured)
+        else:
+            self.moves.pop()
+    
+    def print(self):
+        for y in range(8, 0, -1):
+            for x in range(1, 9, 1):
+                piece = self.get_piece_at(Point(x, y))
+                print(piece.get_fen_char(), end=" ")
+            print()
+
+if __name__ == "__main__":
+    from pieces import Piece, PieceFactory, Color, PieceName
+    from moves import Move
+    board = Board()
+    factory = PieceFactory()
+    board.load_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+    board.print()
+    test_move = Move(Point(1, 2), Point(1, 2))
+    board.make_move(test_move)
+    print()
+    board.print()
