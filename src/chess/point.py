@@ -7,7 +7,7 @@ class Point:
         return f"Point({self.x}, {self.y})"
     
     def __repr__(self) -> str:
-        return f"Point({self.x}, {self.y})"
+        return f"({self.x}, {self.y})"
     
     def __eq__(self, other):
         if not isinstance(other, Point):
