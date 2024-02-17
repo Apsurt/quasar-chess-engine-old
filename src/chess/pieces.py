@@ -78,18 +78,6 @@ class Piece:
             return res
         return res.lower()
     
-    def is_move_legal(self, move):
-        if move.source == move.target:
-            print("Source and target are the same")
-            return False
-        if move.source != self.position:
-            print("Source and piece position are different")
-            return False
-        if not self.sliding:
-            if move.target not in [self.position + offset for offset in self.offsets]:
-                return False
-        return True
-    
     def __str__(self) -> str:
         return f"{self.color.name.capitalize()} {self.name.name.capitalize()} at {self.position!r}"
     

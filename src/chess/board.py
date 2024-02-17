@@ -72,6 +72,22 @@ class Board:
         self.captured_pieces.append(piece)
         self.pieces.remove(piece)
     
+    def is_move_legal(self, move):
+        piece = move.moved
+        if move.source == move.target:
+            logger.warning("Source and target are the same")
+            return False
+        if move.source != piece.position:
+            logger.warning("Source and piece position are different")
+            return False
+        if not piece.sliding:
+            if move.target not in [piece.position + offset for offset in piece.offsets]:
+                logger.warning("Invalid move")
+                return False
+        else:
+            pass
+        return True
+    
     def make_move(self, move):
         self.moves.append(move)
 
@@ -80,13 +96,13 @@ class Board:
         move.captured = self.get_piece_at(move.target)
         captured = move.captured
 
-        if moved.get_color() == captured.get_color():
+        if not self.is_move_legal(move):
+            move.legal = False
+        
+        if moved.get_color() == captured.get_color() and move.legal:
             logger.warning("Capture of same color piece")
             move.legal = False
         
-        if not moved.is_move_legal(move):
-            logger.warning("Illegal move")
-            move.legal = False
         
         if move.legal:
             moved.set_position(move.target)
