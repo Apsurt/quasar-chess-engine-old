@@ -36,6 +36,7 @@ class Piece:
         if not isinstance(position, Point):
             raise InvalidPieceTypeError("Invalid position type")
         self.position = position
+        self.value = PieceValue[self.name.name].value
         self.moved = False
         self.sliding = False
     
