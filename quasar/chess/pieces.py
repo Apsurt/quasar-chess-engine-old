@@ -12,9 +12,9 @@ class Color(Enum):
 class PieceName(Enum):
     NONE = 0
     PAWN = 1
-    ROOK = 2
-    KNIGHT = 3
-    BISHOP = 4
+    KNIGHT = 2
+    BISHOP = 3
+    ROOK = 4
     QUEEN = 5
     KING = 6
 
@@ -31,9 +31,9 @@ class Piece:
         self.sliding = False
     
     is_pawn = lambda self: self.name == PieceName.PAWN
-    is_rook = lambda self: self.name == PieceName.ROOK
     is_knight = lambda self: self.name == PieceName.KNIGHT
     is_bishop = lambda self: self.name == PieceName.BISHOP
+    is_rook = lambda self: self.name == PieceName.ROOK
     is_queen = lambda self: self.name == PieceName.QUEEN
     is_king = lambda self: self.name == PieceName.KING
     is_white = lambda self: self.color == Color.WHITE
@@ -97,12 +97,6 @@ class Pawn(Piece):
             if not self.moved:
                 self.offsets.append(Point(0, 2))
 
-class Rook(Piece):
-    def __init__(self, piece_name, position, color) -> None:
-        super().__init__(piece_name.value, piece_name, position, color)
-        self.sliding = True
-        self.offsets = [Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1)]
-
 class Knight(Piece):
     def __init__(self, piece_name, position, color) -> None:
         super().__init__(piece_name.value, piece_name, position, color)
@@ -114,6 +108,12 @@ class Bishop(Piece):
         super().__init__(piece_name.value, piece_name, position, color)
         self.sliding = True
         self.offsets = [Point(1, 1), Point(-1, 1), Point(-1, -1), Point(1, -1)]
+
+class Rook(Piece):
+    def __init__(self, piece_name, position, color) -> None:
+        super().__init__(piece_name.value, piece_name, position, color)
+        self.sliding = True
+        self.offsets = [Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1)]
 
 class Queen(Piece):
     def __init__(self, piece_name, position, color) -> None:
@@ -131,12 +131,12 @@ class PieceFactory:
     def create_piece(self, name, position, color):
         if name == PieceName.PAWN:
             return Pawn(name, position, color)
-        elif name == PieceName.ROOK:
-            return Rook(name, position, color)
         elif name == PieceName.KNIGHT:
             return Knight(name, position, color)
         elif name == PieceName.BISHOP:
             return Bishop(name, position, color)
+        elif name == PieceName.ROOK:
+            return Rook(name, position, color)
         elif name == PieceName.QUEEN:
             return Queen(name, position, color)
         elif name == PieceName.KING:
