@@ -106,6 +106,11 @@ class Board:
         
         if move.legal:
             moved.set_position(move.target)
+            moved.moved = True
+            try:
+                moved.update_offsets()
+            except AttributeError:
+                pass
             if captured != self.none_piece:
                 self.capture(move.captured)
         else:
