@@ -18,6 +18,15 @@ class PieceName(Enum):
     QUEEN = 5
     KING = 6
 
+class PieceValue(Enum):
+    NONE = 0
+    PAWN = 100
+    KNIGHT = 300
+    BISHOP = 300
+    ROOK = 500
+    QUEEN = 900
+    KING = 0
+
 class Piece:
     def __init__(self, _id=PieceName.NONE.value, name=PieceName.NONE, position=Point(0, 0), color=Color.NONE) -> None:
         self.unique_id = np.random.randint(0, 1000000000)
