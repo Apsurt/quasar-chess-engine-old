@@ -8,3 +8,5 @@ pyvenv.cfg
 */__pycache__
 /__pycache__
 /logs
+/build
+/dist
