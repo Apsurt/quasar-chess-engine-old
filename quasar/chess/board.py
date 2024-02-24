@@ -1,9 +1,10 @@
-from .point import Point
-from .pieces import Piece, PieceFactory, Color, PieceName
-from .utils import fen_to_piece_name
-from .logger import logger
+from point import Point
+from pieces import Piece, PieceFactory, Color, PieceName
+from utils import fen_to_piece_name
+from logger import logger
 
 import math
+
 class Board:
     def __init__(self) -> None:
         self.none_piece = Piece()
