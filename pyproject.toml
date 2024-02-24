@@ -3,11 +3,11 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "Quasar Chess Engine"
+name = "quasar"
 authors = [
     {name = "Tymon Becella", email = "tymon.becella@gmail.com"},
 ]
-description = "The Quasar Chess Engine is a project developing a chess engine for playing on an infinite chessboard."
+description = "A infinite chess engine"
 readme = "README.md"
 requires-python = ">=3.10"
 keywords = ["Infinite Chess", "Chess Engine Development", "Python Chess Engine", "Infinite Board Chess", "Open Source Chess Engine", "Online Chess Gameplay", "Advanced Chess AI", "Chess Software Engineering", "Infinite Chessboard Game", "Collaborative Chess Project"]
@@ -31,12 +31,8 @@ classifiers = [
 dynamic = ["version", "dependencies"]
 
 [project.optional-dependencies]
-pdf = ["ReportLab>=1.2", "RXP"]
-rest = ["docutils>=0.3", "pack ==1.1, ==1.3"]
 
 [project.scripts]
-my-script = "my_package.module:function"
 
 [tool.setuptools.dynamic]
-version = 
 dependencies = {file = ["requirements.txt"]}

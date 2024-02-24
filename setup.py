@@ -1,13 +1,12 @@
 from setuptools import setup
-
-__version__ = "0.0.1"
+from quasar import __version__
 
 requirements = []
 with open("requirements.txt", "r") as f:
     requirements = f.read().splitlines()
 
 setup(
-    name="quasar-chess",
+    name="quasar",
     version=__version__,
     description="A infinite chess engine",
     author="Tymon Becella",
@@ -15,4 +14,10 @@ setup(
     packages=["quasar", "quasar/chess", "quasar/engine", "quasar/gui"],
     install_requires=requirements,
     cmdclass={},
+    license="MIT",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
+    include_package_data=True,
+    python_requires=">=3.8",
+
 )
