@@ -1,6 +1,6 @@
-from point import Point
+from .point import Point
 
-starting_fence = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 def standard_notation_to_point(square: str) -> int:
     if len(square) != 2:
