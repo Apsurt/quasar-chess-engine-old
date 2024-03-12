@@ -10,16 +10,6 @@ import numpy as np
 
 pygame.init()
 
-def get_piece_image_path(piece):
-    path = "quasar/gui/assets/"
-    path += piece.color.name[0].lower()
-    if piece.name == PieceName.KNIGHT:
-        path += "n"
-    else:
-        path += piece.name.name[0].lower()
-    path += ".png"
-    return path
-
 class Game:
     def __init__(self) -> None:
         self.board = Board()
