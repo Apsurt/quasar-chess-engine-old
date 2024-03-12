@@ -4,6 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "quasar"
+version = "0.0.1"
 authors = [
     {name = "Tymon Becella", email = "tymon.becella@gmail.com"},
 ]
@@ -27,12 +28,3 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Operating System :: OS Independent"
 ]
-
-dynamic = ["version", "dependencies"]
-
-[project.optional-dependencies]
-
-[project.scripts]
-
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
