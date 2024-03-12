@@ -10,3 +10,4 @@ pyvenv.cfg
 /logs
 /build
 /dist
+/.vscode
