@@ -1,7 +1,7 @@
-from quasar.chess.point import Point
-from quasar.chess.pieces import Piece, PieceFactory, Color, PieceName
-from quasar.chess.utils import fen_to_piece_name
-from quasar.chess.logger import logger
+from .point import Point
+from .pieces import Piece, PieceFactory, Color, PieceName
+from .utils import fen_to_piece_name
+from .logger import logger
 
 import math
 

@@ -1,23 +1,21 @@
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
-from quasar.chess import Board
-from quasar.chess import Point
+from chess import Board
+from chess import Point
 
 class Game:
     def __init__(self) -> None:
         self.board = Board()
         self.display = pygame.display.set_mode((800, 800))
 
-        self.view_center = Point(4, 4)
+        self.offset = Point(0,0)
+        self.scale = 0
         self.square_size = 100
 
         self.clock = pygame.time.Clock()
         self.fps = 60
         self.running = True
-    
-    def move_board(self, x, y):
-        self.view_center += Point(x, y)
     
     def draw_board(self):
         pass

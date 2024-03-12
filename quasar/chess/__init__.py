@@ -1,3 +1,5 @@
+__title__ = "chess"
+
 from .board import Board
 from .pieces import Piece, PieceFactory, Color, PieceName
 from .moves import Move

@@ -1,6 +1,6 @@
-from quasar.chess.point import Point
-from quasar.chess.errors import InvalidPieceTypeError
-from quasar.chess.logger import logger
+from .point import Point
+from .errors import InvalidPieceTypeError
+from .logger import logger
 from enum import Enum
 import numpy as np
 

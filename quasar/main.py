@@ -1,5 +1,5 @@
 import argparse
-from quasar.gui import Game
+from gui import Game
 
 def main():
     print("Running main")
