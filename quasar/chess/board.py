@@ -1,7 +1,7 @@
-from point import Point
-from pieces import Piece, PieceFactory, Color, PieceName
-from utils import fen_to_piece_name
-from logger import logger
+from quasar.chess.point import Point
+from quasar.chess.pieces import Piece, PieceFactory, Color, PieceName
+from quasar.chess.utils import fen_to_piece_name
+from quasar.chess.logger import logger
 
 import math
 
@@ -135,3 +135,6 @@ if __name__ == "__main__":
     board.make_move(test_move)
     print()
     board.print()
+    bishop = board.get_piece_at(Point(4, 1))
+    print(bishop)
+    offset_generator = bishop.get_offset_generator()

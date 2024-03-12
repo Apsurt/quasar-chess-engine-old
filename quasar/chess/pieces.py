@@ -1,6 +1,6 @@
-from point import Point
-from errors import InvalidPieceTypeError
-from logger import logger
+from quasar.chess.point import Point
+from quasar.chess.errors import InvalidPieceTypeError
+from quasar.chess.logger import logger
 from enum import Enum
 import numpy as np
 
@@ -56,6 +56,15 @@ class Piece:
             return self.position.y == 0
         return False
     
+    def get_offset_generator(self):
+        yield from self.offsets
+        if self.sliding:
+            i = 1
+            while True:
+                i += 1
+                for offset in self.offsets:
+                    yield offset * i
+    
     def get_position(self):
         return self.position
     
@@ -64,6 +73,10 @@ class Piece:
             raise InvalidPieceTypeError("Invalid position type")
         self.position = position
         self.moved = True
+        try:
+            self.update_offsets()
+        except AttributeError:
+            pass
     
     def get_name(self):
         return self.name

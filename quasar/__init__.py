@@ -16,11 +16,11 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright 2024 Tymon Becella'
 __version__ = '0.0.1'
 
-import sys
-import os
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
+#import sys
+#import os
+#
+#SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+#sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 from .chess import *
 from .engine import *

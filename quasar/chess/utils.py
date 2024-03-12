@@ -1,4 +1,4 @@
-from point import Point
+from quasar.chess.point import Point
 
 starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
