@@ -1,10 +1,9 @@
 # This file is defines the Point class, which is used to represent a point in a 2D plane.
 
-#Internal imports
-from .utils import numeric_type
-
 #Built-in imports
 from typing import Union, Any, Tuple, List
+
+numeric_type = Union[int, float]
 
 class Point:
     """
