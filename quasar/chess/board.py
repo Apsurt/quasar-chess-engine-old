@@ -1,7 +1,7 @@
 from .point import Point
 from .pieces import Piece, PieceFactory, PieceColor, PieceName
 from .utils import fen_to_piece_name
-from .logger import logger
+from logger import logger
 
 import math
 

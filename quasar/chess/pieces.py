@@ -3,7 +3,7 @@
 #Internal libraries
 from .point import Point
 from .errors import InvalidPieceTypeError
-from .logger import logger
+from logger import logger
 
 #Built-in libraries
 from typing import Generator
