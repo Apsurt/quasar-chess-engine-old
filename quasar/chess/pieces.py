@@ -1,9 +1,9 @@
 # This file contains the implementation of the Piece class and its subclasses.
 
 #Internal libraries
-from point import Point
-from errors import InvalidPieceTypeError
-from logger import logger
+from .point import Point
+from .errors import InvalidPieceTypeError
+from .logger import logger
 
 #Built-in libraries
 from typing import Generator
@@ -165,7 +165,7 @@ class Piece:
             return self.position.y == 0
         return False
     
-    def get_offset_generator(self) -> Generator[Point]:
+    def get_offset_generator(self) -> Generator[Point, None, None]:
         """
         Creates a generator that yields offsets of the piece,
         acording to the way that the piece moves.
