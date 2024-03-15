@@ -4,12 +4,7 @@ Welcome to the Quasar Chess Engine repository! This project aims to develop a ch
 
 ## Features
 
-(Everything WIP for now)
-
-- **Infinite Board**: Play chess on a theoretically infinite board.
-- **Standard Chess Rules**: Follows the standard rules of chess.
-- **Chess Engine**: Implements a chess engine capable of generating moves and evaluating positions.
-- **User Interface (UI)**: Basic user interface for interacting with the engine.
+(Wait for v0.1.0)
 
 ## Installation
 
@@ -21,13 +16,25 @@ To run the Quasar Chess Engine, ensure you have [Python](https://www.python.org/
    git clone https://github.com/your-username/quasar-chess-engine.git
    ```
 
-2. Navigate to the project directory:
+2. Create virtual environment:
+
+   ```zsh
+   pyhton -m venv quasar-chess-engine
+   ```
+
+3. Navigate to the project directory:
 
    ```zsh
    cd quasar-chess-engine
    ```
 
-3. Install dependencies:
+4. Change source python:
+
+   ```zsh
+   source bin/activate
+   ```
+
+5. Install dependencies:
 
    ```zsh
    pip install -r requirements.txt
@@ -35,13 +42,17 @@ To run the Quasar Chess Engine, ensure you have [Python](https://www.python.org/
 
 ## Usage
 
-1. Start the game by running:
+1. Start a game by running:
 
    ```zsh
-   python main.py
+   bin/python quasar/main.py run
    ```
 
-2. Follow the on-screen instructions to play against the engine.
+2. To check other functionalities of the program run:
+
+   ```zsh
+   bin/python quasar/main.py -h
+   ```
 
 3. Enjoy playing chess on an infinite board!
 
@@ -56,7 +67,29 @@ Contributions are welcome! If you'd like to contribute to this project, please f
 5. Push to the branch (`git push origin feature/your-feature`).
 6. Create a new Pull Request.
 
-Run tests (after I add them)
+Please note that after you add features, **all of the tests** have to pass without any assertion errors.
+
+## Tests
+
+Tests are crucial to maintain quality and integrity of the project. To run them:
+
+```zsh
+bin/python main.py test
+```
+
+There are three types of tests:
+   
+1. Quick tests (-qt)
+
+   - Use these during development to check quickly if features that you're adding are compatible with existing code. Quick tests don't check some of the more computationaly demanding features. Run them by using -qt or --quick-test flags.
+
+2. Standard tests (-st)
+
+   - These tests are necessary to check before creating a pull request. To run standard tests you don't have to use any flags but -st or --standard-test will also work.
+
+3. Full tests (-ft)
+
+   - TBA
 
 ## License
 
@@ -64,7 +97,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgements
 
-- Thanks to Naviary for propagating the idea of infinite chess and whole [Infinite Chess](https://discord.gg/8dCgAPt9v8) discord server.
+- Thanks to Naviary for propagating the idea of infinite chess and to the [Infinite Chess](https://discord.gg/8dCgAPt9v8) discord server for help and feedback.
 - Special thanks to all contributors to this project.
 
 ## Contact
