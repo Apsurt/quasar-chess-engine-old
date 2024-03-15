@@ -43,7 +43,7 @@ if __name__ == "__main__":
     elif args.operation == "test":
         test(flags)
     elif args.operation == "clear_logs":
-        from chess import clear_logs
+        from logger import clear_logs
         clear_logs()
     else:
         print("Invalid command. Use -h for help.")
