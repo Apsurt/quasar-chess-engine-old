@@ -31,3 +31,5 @@ sh = logging.StreamHandler()
 sh.setLevel(logging.DEBUG)
 sh.setFormatter(formatter)
 logger.addHandler(sh)
+
+logger.info('Logger initialized.')
