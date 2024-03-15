@@ -3,12 +3,10 @@ import pytest
 
 def main():
     from gui import Game
-    print("Running main")
     game = Game()
     game.run()
 
 def test(flags):
-    print("Running tests")
     if not any(flags.values()):
         flags["st"] = True
     if list(flags.values()).count(True) > 1:
