@@ -8,7 +8,7 @@ pyvenv.cfg
 */__pycache__
 /__pycache__
 /.pytest_cache
-/logs
+/logs/*
 /build
 /dist
 /.vscode
