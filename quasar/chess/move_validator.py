@@ -1,5 +1,5 @@
 """
-This module contains the MoveValidator class, which is responsible for validating moves.
+This module contains the Validator class, which is responsible for validating moves.
 """
 
 from .moves import Move
