@@ -7,12 +7,12 @@ import math
 
 class Board:
     def __init__(self) -> None:
-        self.none_piece = Piece()
         self.pieces = []
         self.captured_pieces = []
         self.moves = []
 
         self.factory = PieceFactory()
+        self.none_piece = self.factory.create_piece(PieceName.NONE, Point(0, 0), PieceColor.NONE)
         
         self.last_concentration = Point(0, 0)
     
@@ -30,7 +30,7 @@ class Board:
                 if char.isdigit():
                     x += int(char)
                 else:
-                    color = Color.WHITE if char.isupper() else Color.BLACK
+                    color = PieceColor.WHITE if char.isupper() else PieceColor.BLACK
                     piece_name = PieceName[fen_to_piece_name(char)]
                     self.create_piece(piece_name, Point(x+1, y), color)
     

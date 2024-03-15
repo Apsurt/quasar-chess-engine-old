@@ -438,6 +438,8 @@ class PieceFactory:
             return Queen(name, position, color)
         elif name == PieceName.KING:
             return King(name, position, color)
+        elif name == PieceName.NONE:
+            return Piece(name.value, name, position, color)
         else:
             raise InvalidPieceTypeError("Invalid piece type")
 
