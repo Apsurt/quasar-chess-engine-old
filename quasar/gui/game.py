@@ -1,5 +1,6 @@
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
 import pygame
 from chess import Board
 from chess import Point
@@ -80,8 +81,11 @@ class Game:
 
     def draw_board(self):
         self.display.fill((255, 255, 255))
+        selected_piece = self.board.get_piece_at(self.selected_tile)
+        possible_move_generator = self.board.get_possible_moves_generator(selected_piece)
         scaled_tile = self.scale * self.square_size
-        for tile in self.get_visible_tiles():
+        visible_tiles = self.get_visible_tiles()
+        for tile in visible_tiles:
             color = white_tile if (tile.y%2) == (tile.x%2) else black_tile
             if tile == self.selected_tile:
                 color = selected_tile
@@ -91,6 +95,7 @@ class Game:
             y = np.ceil(y)
             scaled_tile = np.ceil(scaled_tile)
             pygame.draw.rect(self.display, color, (x, y, scaled_tile, scaled_tile))
+            
             piece = self.board.get_piece_at(tile)
             if piece.name != PieceName.NONE:
                 img = self.get_image(piece)

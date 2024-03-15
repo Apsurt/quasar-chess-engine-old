@@ -69,6 +69,17 @@ class Board:
                 return piece
         return self.none_piece
     
+    def get_possible_moves_generator(self, piece):
+        offset_generator = piece.get_offset_generator()
+        offset = offset_generator.__next__()
+        while True:
+            move = Move(piece.position, piece.position+offset)
+            self.validate_move(move)
+            if move.legal:
+                yield move
+            offset = offset_generator.__next__()
+            
+    
     def capture(self, piece):
         self.captured_pieces.append(piece)
         self.pieces.remove(piece)
@@ -89,9 +100,7 @@ class Board:
             pass
         return True
     
-    def make_move(self, move):
-        self.moves.append(move)
-
+    def validate_move(self, move):
         move.moved = self.get_piece_at(move.source)
         moved = move.moved
         move.captured = self.get_piece_at(move.target)
@@ -103,19 +112,26 @@ class Board:
         if moved.get_color() == captured.get_color() and move.legal:
             logger.warning("Capture of same color piece")
             move.legal = False
+    
+    def make_move(self, validated_move):
+        if not validated_move.legal:
+            raise Exception()
         
-        
-        if move.legal:
-            moved.set_position(move.target)
-            moved.moved = True
-            try:
-                moved.update_offsets()
-            except AttributeError:
-                pass
-            if captured != self.none_piece:
-                self.capture(move.captured)
-        else:
-            self.moves.pop()
+        self.moves.append(validated_move)
+        validated_move.moved.set_position(validated_move.target)
+        validated_move.moved.moved = True
+        try:
+            validated_move.moved.update_offsets()
+        except AttributeError:
+            pass
+        if validated_move.captured != self.none_piece:
+            self.capture(validated_move.captured)
+    
+    def is_check(self):
+        return self.moves[-1].check
+    
+    def is_checkmate(self):
+        return self.moves[-1].checkmate
     
     def print(self):
         for y in range(8, 0, -1):
@@ -132,7 +148,7 @@ if __name__ == "__main__":
     board.load_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     board.print()
     test_move = Move(Point(1, 2), Point(1, 2))
-    board.make_move(test_move)
+    board.validate_move(test_move)
     print()
     board.print()
     bishop = board.get_piece_at(Point(4, 1))
