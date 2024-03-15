@@ -122,7 +122,7 @@ class Board:
         :return: The white pieces on the board.
         :rtype: list
         """
-        return [piece for piece in self.pieces if piece.get_color() == Color.WHITE]
+        return [piece for piece in self.pieces if piece.get_color() == PieceColor.WHITE]
 
     def get_black_pieces(self) -> list:
         """
@@ -131,7 +131,7 @@ class Board:
         :return: The black pieces on the board.
         :rtype: list
         """
-        return [piece for piece in self.pieces if piece.get_color() == Color.BLACK]
+        return [piece for piece in self.pieces if piece.get_color() == PieceColor.BLACK]
 
     def get_piece_at(self, position: Point) -> Piece:
         """
