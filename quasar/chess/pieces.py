@@ -56,7 +56,8 @@ class Piece:
                  name: PieceName, 
                  position: Point, 
                  color: PieceColor) -> None:
-        """Piece constructor.
+        """
+        Piece constructor.
 
         :param _id: Piece identifier
         :type _id: int
@@ -80,7 +81,8 @@ class Piece:
         self.sliding = False
     
     def is_pawn(self) -> bool:
-        """Checks if the piece is a pawn.
+        """
+        Checks if the piece is a pawn.
 
         :return: True or False
         :rtype: bool
@@ -88,7 +90,8 @@ class Piece:
         return self.name == PieceName.PAWN
     
     def is_knight(self) -> bool:
-        """Checks if the piece is a knight.
+        """
+        Checks if the piece is a knight.
 
         :return: True or False
         :rtype: bool
@@ -96,7 +99,8 @@ class Piece:
         return self.name == PieceName.KNIGHT
     
     def is_bishop(self) -> bool:
-        """Checks if the piece is a bishop.
+        """
+        Checks if the piece is a bishop.
 
         :return: True or False
         :rtype: bool
@@ -104,7 +108,8 @@ class Piece:
         return self.name == PieceName.BISHOP
     
     def is_rook(self) -> bool:
-        """Checks if the piece is a rook.
+        """
+        Checks if the piece is a rook.
 
         :return: True or False
         :rtype: bool
@@ -112,7 +117,8 @@ class Piece:
         return self.name == PieceName.ROOK
     
     def is_queen(self) -> bool:
-        """Checks if the piece is a queen.
+        """
+        Checks if the piece is a queen.
 
         :return: True or False
         :rtype: bool
@@ -120,7 +126,8 @@ class Piece:
         return self.name == PieceName.QUEEN
     
     def is_king(self) -> bool:
-        """Checks if the piece is a king.
+        """
+        Checks if the piece is a king.
 
         :return: True or False
         :rtype: bool
@@ -128,7 +135,8 @@ class Piece:
         return self.name == PieceName.KING
     
     def is_white(self) -> bool:
-        """Checks if the piece is white.
+        """
+        Checks if the piece is white.
 
         :return: True or False
         :rtype: bool
@@ -136,7 +144,8 @@ class Piece:
         return self.color == PieceColor.WHITE
     
     def is_black(self) -> bool:
-        """Checks if the piece is black.
+        """
+        Checks if the piece is black.
 
         :return: True or False
         :rtype: bool
@@ -144,7 +153,8 @@ class Piece:
         return self.color == PieceColor.BLACK
 
     def is_promotion_square(self) -> bool:
-        """Checks if the piece is on a promotion square.
+        """
+        Checks if the piece is on a promotion square.
 
         :return: True or False
         :rtype: bool
@@ -156,7 +166,8 @@ class Piece:
         return False
     
     def get_offset_generator(self) -> Generator[Point]:
-        """Creates a generator that yields offsets of the piece,
+        """
+        Creates a generator that yields offsets of the piece,
         acording to the way that the piece moves.
 
         :yield: offset
@@ -171,7 +182,8 @@ class Piece:
                     yield offset * i
     
     def get_position(self) -> Point:
-        """Returns piece position.
+        """
+        Returns piece position.
 
         :return: self.position
         :rtype: Point
@@ -179,7 +191,8 @@ class Piece:
         return self.position
     
     def set_position(self, position: Point) -> None:
-        """Sets piece position.
+        """
+        Sets piece position.
 
         :param position: position to be set
         :type position: Point
@@ -195,7 +208,8 @@ class Piece:
             pass
     
     def get_name(self) -> PieceName:
-        """Returns piece name.
+        """
+        Returns piece name.
 
         :return: self.name
         :rtype: PieceName
@@ -203,7 +217,8 @@ class Piece:
         return self.name
     
     def get_color(self) -> PieceColor:
-        """Returns piece color.
+        """
+        Returns piece color.
 
         :return: self.color
         :rtype: PieceColor
@@ -211,7 +226,8 @@ class Piece:
         return self.color
     
     def get_id(self) -> int:
-        """Returns piece id.
+        """
+        Returns piece id.
 
         :return: self.id
         :rtype: int
@@ -219,7 +235,8 @@ class Piece:
         return self.id
     
     def get_moved(self) -> bool:
-        """Returns True if the piece has moved, False otherwise.
+        """
+        Returns True if the piece has moved, False otherwise.
 
         :return: True or False
         :rtype: bool
@@ -227,7 +244,8 @@ class Piece:
         return self.moved
     
     def get_fen_char(self) -> str:
-        """Returns FEN character for the piece.
+        """
+        Returns FEN character for the piece.
 
         :return: FEN character
         :rtype: str
