@@ -4,7 +4,9 @@
 from .point import Point
 
 #Built-in imports
-from typing import Literal
+from typing import Literal, Union
+
+numeric_type = Union[int, float]
 
 starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
