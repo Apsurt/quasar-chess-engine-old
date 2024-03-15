@@ -18,7 +18,7 @@ __version__ = '0.0.1'
 
 import os
 
-from logger import logger, clear_logs
+from .logger import logger, clear_logs
 from .chess import *
 from .engine import *
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"

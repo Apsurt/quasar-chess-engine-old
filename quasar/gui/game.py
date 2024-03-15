@@ -7,8 +7,8 @@ the game's main logic.
 import sys
 import pygame
 import numpy as np
-from chess import Board, Point, PieceName, Piece
-from chess.utils import STARTING_FEN
+from quasar.chess import Board, Point, PieceName, Piece
+from quasar.chess.utils import STARTING_FEN
 from .colors import BLACK_TILE, WHITE_TILE, SELECTED_TILE
 
 class Game:
