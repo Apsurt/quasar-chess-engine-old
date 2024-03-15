@@ -5,7 +5,7 @@ which is responsible for managing the state of the pieces.
 
 from typing import Generator
 from enum import Enum
-from logger import logger
+from quasar.logger import logger
 import numpy as np
 from .point import Point
 

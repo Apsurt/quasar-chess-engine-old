@@ -4,7 +4,7 @@ which is responsible for managing the state of the game board.
 """
 
 import math
-from logger import logger
+from quasar.logger import logger
 from .point import Point
 from .pieces import Piece, PieceFactory, PieceColor, PieceName
 from .moves import Move
