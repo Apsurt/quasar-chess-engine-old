@@ -20,7 +20,7 @@ jobs:
         pip install -r requirements.txt
     - name: Add the current directory to the PYTHONPATH
       run: |
-        export PYTHONPATH=.
+        export PYTHONPATH=$PYTHONPATH:$(pwd)
     - name: Test the code with pytest
       run: |
         pytest tests
