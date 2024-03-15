@@ -1,4 +1,7 @@
+"""
+This file contains the color constants used in the GUI.
+"""
 
-black_tile = "#404040"
-white_tile = "#d4d4d4"
-selected_tile = "#a0a0f0"
+BLACK_TILE = "#404040"
+WHITE_TILE = "#d4d4d4"
+SELECTED_TILE = "#a0a0f0"

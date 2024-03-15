@@ -1,48 +1,67 @@
-import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+"""
+This module contains the Game class, 
+which is responsible for the game loop and 
+the game's main logic.
+"""
 
+import sys
 import pygame
-from chess import Board
-from chess import Point
-from chess import PieceName
-from chess.utils import starting_fen
-from .colors import *
 import numpy as np
-
-pygame.init()
+from chess import Board, Point, PieceName, Piece
+from chess.utils import STARTING_FEN
+from .colors import BLACK_TILE, WHITE_TILE, SELECTED_TILE
 
 class Game:
+    """
+    The Game class is responsible for the game loop and the game's main logic.
+    """
     def __init__(self) -> None:
+        """
+        The constructor for the Game class.
+        """
         self.board = Board()
-        self.board.load_fen(starting_fen)
+        self.board.load_fen(STARTING_FEN)
         self.display = pygame.display.set_mode((600, 600))
 
         self.square_size = self.display.get_width()//8
         self.offset = Point(-self.square_size, -self.square_size)
         self.scale = 1
 
-        self.last_mouse = Point(0, 0)
-
         self.selected_tile = None
 
-        self.clock = pygame.time.Clock()
-        self.fps = 6000
-        self.running = True
+        self.last_mouse = Point(0,0)
 
-        self.images = self.load_images()
-    
-    def load_images(self):
-        images = []
+        self.clock = pygame.time.Clock()
+        self.fps = 60
+
+        self.load_images()
+
+    def load_images(self) -> list:
+        """
+        Load the images for the pieces.
+
+        :return: self.images
+        :rtype: list
+        """
+        self.images = []
         colors = ['b','w']
         pieces = ['b', 'k', 'n', 'p', 'q', 'r']
         for color in colors:
             for piece in pieces:
                 path = f"quasar/gui/assets/{color}{piece}.png"
                 img = pygame.image.load(path)
-                images.append(img)
-        return images
+                self.images.append(img)
+        return self.images
 
-    def get_image(self, piece):
+    def get_image(self, piece: Piece) -> pygame.Surface:
+        """
+        Get the image for the piece.
+
+        :param piece: The piece to get the image for.
+        :type piece: Piece
+        :return: The image for the piece.
+        :rtype: pygame.Surface
+        """
         pieces = ['b', 'k', 'n', 'p', 'q', 'r']
         if piece.color.name[0].lower() == 'b':
             i = 0
@@ -54,13 +73,19 @@ class Game:
             piece_nickname = piece.name.name[0].lower()
         i += pieces.index(piece_nickname)
         return self.images[i]
-    
-    def get_visible_tiles(self):
+
+    def get_visible_tiles(self) -> list:
+        """
+        Get the visible tiles on the board.
+
+        :return: The visible tiles on the board.
+        :rtype: list
+        """
         scaled_tile = self.scale * self.square_size
         visible_tiles = []
 
-        n = (self.display.get_width() // scaled_tile)
-        m = (self.display.get_height() // scaled_tile)
+        n = self.display.get_width() // scaled_tile
+        m = self.display.get_height() // scaled_tile
 
         n_min = int(np.floor(0 - (self.offset.x//scaled_tile)))
         n_max = int(np.ceil(n - (self.offset.x//scaled_tile)))
@@ -74,43 +99,53 @@ class Game:
         for tile in tiles:
             x = tile.x * scaled_tile + self.offset.x
             y = tile.y * scaled_tile + self.offset.y
-            if x + scaled_tile > 0 and x < self.display.get_width() and y + scaled_tile > 0 and y < self.display.get_height():
-                visible_tiles.append(tile)
-        
+            if x + scaled_tile > 0 and x < self.display.get_width():
+                if y + scaled_tile > 0 and y < self.display.get_height():
+                    visible_tiles.append(tile)
         return visible_tiles
 
-    def draw_board(self):
+    def draw_board(self) -> None:
+        """
+        Draw the board on the display.
+        """
         self.display.fill((255, 255, 255))
         selected_piece = self.board.get_piece_at(self.selected_tile)
         possible_move_generator = self.board.get_possible_moves_generator(selected_piece)
         scaled_tile = self.scale * self.square_size
         visible_tiles = self.get_visible_tiles()
         for tile in visible_tiles:
-            color = white_tile if (tile.y%2) == (tile.x%2) else black_tile
+            color = WHITE_TILE if (tile.y%2) == (tile.x%2) else BLACK_TILE
             if tile == self.selected_tile:
-                color = selected_tile
+                color = SELECTED_TILE
             x = tile.x * scaled_tile + self.offset.x
             y = tile.y * scaled_tile + self.offset.y
             x = np.ceil(x)
             y = np.ceil(y)
             scaled_tile = np.ceil(scaled_tile)
             pygame.draw.rect(self.display, color, (x, y, scaled_tile, scaled_tile))
-            
+
             piece = self.board.get_piece_at(tile)
             if piece.name != PieceName.NONE:
                 img = self.get_image(piece)
                 img = pygame.transform.smoothscale(img, (scaled_tile, scaled_tile))
                 self.display.blit(img, (x,y))
 
-    def update(self):
+    def update(self) -> None:
+        """
+        Update the display.
+        """
         self.draw_board()
         pygame.display.flip()
-    
-    def run(self):
-        while self.running:
+
+    def run(self) -> None:
+        """
+        Run the game loop.
+        """
+        running = True
+        while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.running = False
+                    running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         self.last_mouse = Point(*pygame.mouse.get_pos())
@@ -129,12 +164,12 @@ class Game:
                     if self.scale == 10:
                         self.square_size *= 10
                         self.scale = 1
-            
+
             self.update()
             pygame.display.set_caption(str(round(self.clock.get_fps(), 2)))
             self.clock.tick(self.fps)
         pygame.quit()
-        quit()
+        sys.exit()
 
 if __name__ == "__main__":
     game = Game()

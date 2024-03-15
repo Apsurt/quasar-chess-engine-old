@@ -1,4 +1,6 @@
-# This file is used to log the events of the game
+"""
+This module initializes the logger for the application.
+"""
 
 #Built-in imports
 import logging
@@ -7,6 +9,9 @@ import os
 import shutil
 
 def clear_logs() -> None:
+    """
+    Clears the logs directory.
+    """
     logs_path = 'logs'
     for filename in os.listdir(logs_path):
         file_path = os.path.join(logs_path, filename)
@@ -15,8 +20,8 @@ def clear_logs() -> None:
                 os.unlink(file_path)
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
-        except Exception as e:
-            print('Failed to delete %s. Reason: %s' % (file_path, e))
+        except OSError as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')
 
 f_name = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
 logger = logging.getLogger('chess')

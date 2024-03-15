@@ -1,16 +1,13 @@
-# This file contains the implementation of the Piece class and its subclasses.
+"""
+This module contains the Piece class,
+which is responsible for managing the state of the pieces.
+"""
 
-#Internal libraries
-from .point import Point
-from .errors import InvalidPieceTypeError
-from logger import logger
-
-#Built-in libraries
 from typing import Generator
 from enum import Enum
-
-#External libraries
+from logger import logger
 import numpy as np
+from .point import Point
 
 class PieceColor(Enum):
     """
@@ -34,27 +31,13 @@ class PieceName(Enum):
     QUEEN = 5
     KING = 6
 
-class PieceValue(Enum):
-    """
-    Enumerated type that represents piece material value.
-    Available types: NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
-    """
-    NONE = 0
-    PAWN = 100
-    KNIGHT = 300
-    BISHOP = 300
-    ROOK = 500
-    QUEEN = 900
-    KING = 0
-
 class Piece:
     """
     Piece class that represents a chess piece.
     """
-    def __init__(self, 
-                 _id: int, 
-                 name: PieceName, 
-                 position: Point, 
+    def __init__(self,
+                 name: PieceName,
+                 position: Point,
                  color: PieceColor) -> None:
         """
         Piece constructor.
@@ -70,16 +53,16 @@ class Piece:
         :raises TypeError: when position is not of Point type
         """
         self.unique_id = np.random.randint(0, 1000000000)
-        self.id = _id
         self.name = name
+        logger.debug(f"Creating {self.name.name.lower()} with id: {self.unique_id}")
         self.color = color
         if not isinstance(position, Point):
             raise TypeError(f"Position has to be of type point, got {type(position)} instead")
         self.position = position
-        self.value = PieceValue[self.name.name].value
         self.moved = False
         self.sliding = False
-    
+        self.offsets = []
+
     def is_pawn(self) -> bool:
         """
         Checks if the piece is a pawn.
@@ -88,7 +71,7 @@ class Piece:
         :rtype: bool
         """
         return self.name == PieceName.PAWN
-    
+
     def is_knight(self) -> bool:
         """
         Checks if the piece is a knight.
@@ -97,7 +80,7 @@ class Piece:
         :rtype: bool
         """
         return self.name == PieceName.KNIGHT
-    
+
     def is_bishop(self) -> bool:
         """
         Checks if the piece is a bishop.
@@ -106,7 +89,7 @@ class Piece:
         :rtype: bool
         """
         return self.name == PieceName.BISHOP
-    
+
     def is_rook(self) -> bool:
         """
         Checks if the piece is a rook.
@@ -115,7 +98,7 @@ class Piece:
         :rtype: bool
         """
         return self.name == PieceName.ROOK
-    
+
     def is_queen(self) -> bool:
         """
         Checks if the piece is a queen.
@@ -124,7 +107,7 @@ class Piece:
         :rtype: bool
         """
         return self.name == PieceName.QUEEN
-    
+
     def is_king(self) -> bool:
         """
         Checks if the piece is a king.
@@ -133,7 +116,7 @@ class Piece:
         :rtype: bool
         """
         return self.name == PieceName.KING
-    
+
     def is_white(self) -> bool:
         """
         Checks if the piece is white.
@@ -142,7 +125,7 @@ class Piece:
         :rtype: bool
         """
         return self.color == PieceColor.WHITE
-    
+
     def is_black(self) -> bool:
         """
         Checks if the piece is black.
@@ -164,7 +147,7 @@ class Piece:
         if self.color == PieceColor.BLACK:
             return self.position.y == 0
         return False
-    
+
     def get_offset_generator(self) -> Generator[Point, None, None]:
         """
         Creates a generator that yields offsets of the piece,
@@ -180,7 +163,7 @@ class Piece:
                 i += 1
                 for offset in self.offsets:
                     yield offset * i
-    
+
     def get_position(self) -> Point:
         """
         Returns piece position.
@@ -189,7 +172,7 @@ class Piece:
         :rtype: Point
         """
         return self.position
-    
+
     def set_position(self, position: Point) -> None:
         """
         Sets piece position.
@@ -206,7 +189,7 @@ class Piece:
             self.update_offsets()
         except AttributeError:
             pass
-    
+
     def get_name(self) -> PieceName:
         """
         Returns piece name.
@@ -215,7 +198,7 @@ class Piece:
         :rtype: PieceName
         """
         return self.name
-    
+
     def get_color(self) -> PieceColor:
         """
         Returns piece color.
@@ -224,16 +207,7 @@ class Piece:
         :rtype: PieceColor
         """
         return self.color
-    
-    def get_id(self) -> int:
-        """
-        Returns piece id.
 
-        :return: self.id
-        :rtype: int
-        """
-        return self.id
-    
     def get_moved(self) -> bool:
         """
         Returns True if the piece has moved, False otherwise.
@@ -242,7 +216,7 @@ class Piece:
         :rtype: bool
         """
         return self.moved
-    
+
     def get_fen_char(self) -> str:
         """
         Returns FEN character for the piece.
@@ -259,10 +233,10 @@ class Piece:
         if self.color == PieceColor.WHITE:
             return res
         return res.lower()
-    
+
     def __str__(self) -> str:
         return f"{self.color.name.capitalize()} {self.name.name.capitalize()} at {self.position!r}"
-    
+
     def __repr__(self) -> str:
         return f"{self.color.name.capitalize()} {self.name.name.capitalize()}"
 
@@ -284,11 +258,11 @@ class Pawn(Piece):
         :param color: either white, black or none, in the form of enum
         :type color: PieceColor
         """
-        super().__init__(piece_name.value, piece_name, position, color)
+        super().__init__(piece_name, position, color)
         self.sliding = False
         self.offsets = []
         self.update_offsets()
-    
+
     def update_offsets(self) -> None:
         """
         Updates pawn offsets after initial move.
@@ -316,9 +290,16 @@ class Knight(Piece):
         :param color: either white, black or none, in the form of enum
         :type color: PieceColor
         """
-        super().__init__(piece_name.value, piece_name, position, color)
+        super().__init__(piece_name, position, color)
         self.sliding = False
-        self.offsets = [Point(1, 2), Point(2, 1), Point(-1, 2), Point(2, -1), Point(-1, -2), Point(-2, -1), Point(1, -2), Point(-2, 1)]
+        self.offsets = [Point(1, 2),
+                        Point(2, 1),
+                        Point(-1, 2),
+                        Point(2, -1),
+                        Point(-1, -2),
+                        Point(-2, -1),
+                        Point(1, -2),
+                        Point(-2, 1)]
 
 class Bishop(Piece):
     """
@@ -338,7 +319,7 @@ class Bishop(Piece):
         :param color: either white, black or none, in the form of enum
         :type color: PieceColor
         """
-        super().__init__(piece_name.value, piece_name, position, color)
+        super().__init__(piece_name, position, color)
         self.sliding = True
         self.offsets = [Point(1, 1), Point(-1, 1), Point(-1, -1), Point(1, -1)]
 
@@ -360,7 +341,7 @@ class Rook(Piece):
         :param color: either white, black or none, in the form of enum
         :type color: PieceColor
         """
-        super().__init__(piece_name.value, piece_name, position, color)
+        super().__init__(piece_name, position, color)
         self.sliding = True
         self.offsets = [Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1)]
 
@@ -382,9 +363,16 @@ class Queen(Piece):
         :param color: either white, black or none, in the form of enum
         :type color: PieceColor
         """
-        super().__init__(piece_name.value, piece_name, position, color)
+        super().__init__(piece_name, position, color)
         self.sliding = True
-        self.offsets = [Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1), Point(1, 1), Point(-1, 1), Point(-1, -1), Point(1, -1)]
+        self.offsets = [Point(1, 0),
+                        Point(0, 1),
+                        Point(-1, 0),
+                        Point(0, -1),
+                        Point(1, 1),
+                        Point(-1, 1),
+                        Point(-1, -1),
+                        Point(1, -1)]
 
 class King(Piece):
     """
@@ -404,9 +392,16 @@ class King(Piece):
         :param color: either white, black or none, in the form of enum
         :type color: PieceColor
         """
-        super().__init__(piece_name.value, piece_name, position, color)
+        super().__init__(piece_name, position, color)
         self.sliding = False
-        self.offsets = [Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1), Point(1, 1), Point(-1, 1), Point(-1, -1), Point(1, -1)]
+        self.offsets = [Point(1, 0),
+                        Point(0, 1),
+                        Point(-1, 0),
+                        Point(0, -1),
+                        Point(1, 1),
+                        Point(-1, 1),
+                        Point(-1, -1),
+                        Point(1, -1)]
 
 class PieceFactory:
     """
@@ -426,22 +421,97 @@ class PieceFactory:
         :return: Piece class object
         :rtype: Piece
         """
-        if name == PieceName.PAWN:
-            return Pawn(name, position, color)
-        elif name == PieceName.KNIGHT:
-            return Knight(name, position, color)
-        elif name == PieceName.BISHOP:
-            return Bishop(name, position, color)
-        elif name == PieceName.ROOK:
-            return Rook(name, position, color)
-        elif name == PieceName.QUEEN:
-            return Queen(name, position, color)
-        elif name == PieceName.KING:
-            return King(name, position, color)
-        elif name == PieceName.NONE:
-            return Piece(name.value, name, position, color)
-        else:
-            raise InvalidPieceTypeError("Invalid piece type")
+
+        class_dict = {PieceName.PAWN: Pawn,
+                      PieceName.KNIGHT: Knight,
+                      PieceName.BISHOP: Bishop,
+                      PieceName.ROOK: Rook,
+                      PieceName.QUEEN: Queen,
+                      PieceName.KING: King,
+                      PieceName.NONE: Piece}
+
+        if name != PieceName.NONE:
+            class_ = class_dict[name]
+            return class_(name, position, color)
+        return Piece(name, position, color)
+
+    def create_pawn(self, position: Point, color: PieceColor) -> Piece:
+        """
+        Creates a pawn.
+
+        :param position: position of the piece on the board
+        :type position: Point
+        :param color: either white, black or none, in the form of enum
+        :type color: PieceColor
+        :return: Pawn class object
+        :rtype: Pawn
+        """
+        return Pawn(PieceName.PAWN, position, color)
+
+    def create_knight(self, position: Point, color: PieceColor) -> Piece:
+        """
+        Creates a knight.
+
+        :param position: position of the piece on the board
+        :type position: Point
+        :param color: either white, black or none, in the form of enum
+        :type color: PieceColor
+        :return: Knight class object
+        :rtype: Knight
+        """
+        return Knight(PieceName.KNIGHT, position, color)
+
+    def create_bishop(self, position: Point, color: PieceColor) -> Piece:
+        """
+        Creates a bishop.
+
+        :param position: position of the piece on the board
+        :type position: Point
+        :param color: either white, black or none, in the form of enum
+        :type color: PieceColor
+        :return: Bishop class object
+        :rtype: Bishop
+        """
+        return Bishop(PieceName.BISHOP, position, color)
+
+    def create_rook(self, position: Point, color: PieceColor) -> Piece:
+        """
+        Creates a rook.
+
+        :param position: position of the piece on the board
+        :type position: Point
+        :param color: either white, black or none, in the form of enum
+        :type color: PieceColor
+        :return: Rook class object
+        :rtype: Rook
+        """
+        return Rook(PieceName.ROOK, position, color)
+
+    def create_queen(self, position: Point, color: PieceColor) -> Piece:
+        """
+        Creates a queen.
+
+        :param position: position of the piece on the board
+        :type position: Point
+        :param color: either white, black or none, in the form of enum
+        :type color: PieceColor
+        :return: Queen class object
+        :rtype: Queen
+        """
+        return Queen(PieceName.QUEEN, position, color)
+
+    def create_king(self, position: Point, color: PieceColor) -> Piece:
+        """
+        Creates a king.
+
+        :param position: position of the piece on the board
+        :type position: Point
+        :param color: either white, black or none, in the form of enum
+        :type color: PieceColor
+        :return: King class object
+        :rtype: King
+        """
+        return King(PieceName.KING, position, color)
 
 if __name__ == "__main__":
     factory = PieceFactory()
