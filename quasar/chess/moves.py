@@ -1,4 +1,3 @@
-
 class Move:
     def __init__(self, source, target) -> None:
         self.source = source
