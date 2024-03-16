@@ -187,6 +187,19 @@ class Board:
         if legal_move.captured != self.none_piece:
             self.capture(legal_move.captured)
 
+    def undo_move(self) -> None:
+        """
+        Undo the last move made on the board.
+        """
+        move = self.moves.pop()
+        move.moved.set_position(move.source)
+        self.pieces.append(move.captured)
+        move.moved.moved = False
+        try:
+            move.moved.update_offsets()
+        except AttributeError:
+            pass
+
     def is_check(self) -> bool:
         """
         Check if the current player is in check.
