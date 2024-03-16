@@ -149,18 +149,7 @@ class Board:
         return self.none_piece
 
     def get_possible_moves_generator(self, piece: Piece):
-        """
-        WIP
-        """
-        piece_offset_generator = piece.get_offset_generator()
-        offset = piece_offset_generator.next()
-        while True:
-            move = Move(piece.position, piece.position+offset)
-            self.validate_move(move)
-            if move.legal:
-                yield move
-            offset = piece_offset_generator.next()
-
+        pass
 
     def capture(self, piece: Piece) -> None:
         """
@@ -171,50 +160,6 @@ class Board:
         """
         self.captured_pieces.append(piece)
         self.pieces.remove(piece)
-
-    def is_move_legal(self, move: Move) -> bool:
-        """
-        Check if a move is legal according to the rules of chess.
-
-        :param move: The move to check.
-        :type move: Move
-        :return: True if the move is legal, False otherwise.
-        :rtype: bool
-        """
-        piece = move.moved
-        if move.source == move.target:
-            logger.warning("Source and target are the same")
-            return False
-        if move.source != piece.position:
-            logger.warning("Source and piece position are different")
-            return False
-        if not piece.sliding:
-            if move.target not in [piece.position + offset for offset in piece.offsets]:
-                logger.warning("Invalid move")
-                return False
-        else:
-            pass
-        return True
-
-    def validate_move(self, move: Move) -> None:
-        """
-        Sets variables of the move object according to the rules of chess.
-        Declares if the move is legal or not.
-
-        :param move: The move to validate.
-        :type move: Move
-        """
-        move.moved = self.get_piece_at(move.source)
-        moved = move.moved
-        move.captured = self.get_piece_at(move.target)
-        captured = move.captured
-
-        if not self.is_move_legal(move):
-            move.legal = False
-
-        if moved.get_color() == captured.get_color() and move.legal:
-            logger.warning("Capture of same color piece")
-            move.legal = False
 
     def make_move(self, legal_move: Move) -> None:
         """
@@ -266,16 +211,4 @@ class Board:
             print()
 
 if __name__ == "__main__":
-    from pieces import PieceFactory, Color, PieceName
-    from moves import Move
-    board = Board()
-    factory = PieceFactory()
-    board.load_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-    board.print()
-    test_move = Move(Point(1, 2), Point(1, 2))
-    board.validate_move(test_move)
-    print()
-    board.print()
-    bishop = board.get_piece_at(Point(4, 1))
-    print(bishop)
-    offset_generator = bishop.get_offset_generator()
+    pass
