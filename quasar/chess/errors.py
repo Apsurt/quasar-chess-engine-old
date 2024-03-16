@@ -18,6 +18,14 @@ class InvalidMoveError(BaseChessError):
     :type BaseChessError: BaseChessError
     """
 
+class NonePieceError(BaseChessError):
+    """
+    Raised when an attempt is made to move the none piece.
+
+    :param BaseChessError: The base chess error class.
+    :type BaseChessError: BaseChessError
+    """
+
 class InvalidPositionError(BaseChessError):
     """
     Raised when an invalid position is attempted.
