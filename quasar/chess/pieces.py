@@ -54,17 +54,27 @@ class Piece:
         """
         self.unique_id = np.random.randint(0, 1000000000)
         self.name = name
-        logger.debug("Creating %s with id: %s at %s",
+        self.color = color
+        logger.debug("Creating %s %s with id: %s at %s",
+                     self.color.name.lower(),
                      self.name.name.lower(),
                      self.unique_id,
                      position.__repr__())
-        self.color = color
         if not isinstance(position, Point):
             raise TypeError(f"Position has to be of type point, got {type(position)} instead")
         self.position = position
         self.moved = False
         self.sliding = False
         self.offsets = []
+
+    def is_none(self) -> bool:
+        """
+        Checks if the piece is none.
+
+        :return: True or False
+        :rtype: bool
+        """
+        return self.name == PieceName.NONE
 
     def is_pawn(self) -> bool:
         """
@@ -151,7 +161,7 @@ class Piece:
             return self.position.y == 0
         return False
 
-    def get_offset_generator(self) -> Generator[Point, None, None]:
+    def get_offset_generator(self, bottom_left_bound, top_right_bound) -> Generator[Point, None, None]:
         """
         Creates a generator that yields offsets of the piece,
         acording to the way that the piece moves.
