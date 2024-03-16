@@ -4,7 +4,7 @@ which is responsible for managing the state of the game board.
 """
 
 import math
-from quasar.logger import logger
+#from quasar.logger import logger
 from .point import Point
 from .pieces import Piece, PieceFactory, PieceColor, PieceName
 from .moves import Move
@@ -149,7 +149,12 @@ class Board:
         return self.none_piece
 
     def get_possible_moves_generator(self, piece: Piece):
-        pass
+        """
+        _summary_
+
+        :param piece: _description_
+        :type piece: Piece
+        """
 
     def capture(self, piece: Piece) -> None:
         """

@@ -54,7 +54,7 @@ class Piece:
         """
         self.unique_id = np.random.randint(0, 1000000000)
         self.name = name
-        logger.debug("Creating %s with id: %s", self.name.name.lower(), self.unique_id)
+        logger.debug("Creating %s with id: %s at %s", self.name.name.lower(), self.unique_id, position.__repr__())
         self.color = color
         if not isinstance(position, Point):
             raise TypeError(f"Position has to be of type point, got {type(position)} instead")
