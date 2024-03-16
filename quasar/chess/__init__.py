@@ -7,7 +7,6 @@ __title__ = "chess"
 
 from .board import Board
 from .pieces import Piece, PieceFactory, PieceColor, PieceName
-from .move_validator import Validator
 from .moves import Move
 from .point import Point
 from .utils import *
