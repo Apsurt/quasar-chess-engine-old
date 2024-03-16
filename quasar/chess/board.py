@@ -4,13 +4,13 @@ which is responsible for managing the state of the game board.
 """
 
 import math
-#from quasar.logger import logger
-from .point import Point
-from .pieces import Piece, PieceFactory, PieceColor, PieceName
-from .moves import Move
-from .utils import fen_to_piece_name
-from .errors import InvalidMoveError
-from .move_validator import Validator
+from typing import Tuple
+from quasar.logger import logger
+from quasar.chess.moves import Move
+from quasar.chess.errors import NonePieceError, InvalidMoveError, InvalidPlayerError
+from quasar.chess.point import Point
+from quasar.chess.pieces import Piece, PieceFactory, PieceColor, PieceName
+from quasar.chess.utils import fen_to_piece_name
 
 class Board:
     """
@@ -23,6 +23,8 @@ class Board:
         self.pieces = []
         self.captured_pieces = []
         self.moves = []
+
+        self.current_player = PieceColor.WHITE
 
         self.factory = PieceFactory()
         self.none_piece = self.factory.create_piece(PieceName.NONE, Point(0, 0), PieceColor.NONE)
@@ -66,6 +68,18 @@ class Board:
                     color = PieceColor.WHITE if char.isupper() else PieceColor.BLACK
                     piece_name = PieceName[fen_to_piece_name(char)]
                     self.create_piece(piece_name, Point(x+1, y), color)
+
+    def change_player(self) -> None:
+        """
+        Change the current player.
+        """
+        if self.current_player == PieceColor.WHITE:
+            self.current_player = PieceColor.BLACK
+        elif self.current_player == PieceColor.BLACK:
+            self.current_player = PieceColor.WHITE
+        else:
+            raise InvalidPlayerError(
+                f"Current player has to be either WHITE or BLACK. Got {self.current_player.name}")
 
     def get_pieces(self) -> list:
         """
@@ -150,13 +164,34 @@ class Board:
                 return piece
         return self.none_piece
 
-    def get_possible_moves_generator(self, piece: Piece):
+    def get_possible_moves_generator(self, piece: Piece,
+                                     bottom_left_bound: Point,
+                                     top_right_bound: Point):
         """
         _summary_
 
         :param piece: _description_
         :type piece: Piece
         """
+        if piece.color != self.current_player:
+            raise InvalidPlayerError(
+                f"Current player is {self.current_player.name}, but piece is {piece.color.name}")
+        offset_generator = piece.get_offset_generator(bottom_left_bound, top_right_bound)
+        misfire = 0
+        while misfire < 100:
+            try:
+                offset = next(offset_generator)
+            except StopIteration:
+                break
+            target = piece.get_position() + offset
+            if bottom_left_bound.x <= target.x <= top_right_bound.x and \
+                bottom_left_bound.y <= target.y <= top_right_bound.y:
+                move = Move(piece.get_color(), piece.get_position(), target)
+                move, is_legal = self.validator(move, self)
+                if is_legal:
+                    yield move
+            else:
+                misfire += 1
 
     def capture(self, piece: Piece) -> None:
         """
@@ -168,7 +203,7 @@ class Board:
         self.captured_pieces.append(piece)
         self.pieces.remove(piece)
 
-    def make_move(self, legal_move: Move) -> None:
+    def make_move(self, move: Move) -> None:
         """
         Makes a move on the board.
 
@@ -176,8 +211,13 @@ class Board:
         :type validated_move: Move
         :raises InvalidMoveError: If the move is not legal.
         """
-        if not legal_move.legal:
+
+        legal_move, is_legal = self.validator(move, self)
+
+        if not is_legal:
             raise InvalidMoveError()
+
+        self.change_player()
 
         self.moves.append(legal_move)
         legal_move.moved.set_position(legal_move.target)
@@ -229,6 +269,63 @@ class Board:
                 piece = self.get_piece_at(Point(x, y))
                 print(piece.get_fen_char(), end=" ")
             print()
+
+class Validator:
+    """
+    This class is responsible for validating moves.
+    """
+    def __call__(self, move_to_validate: Move, board_state: Board) -> Tuple[Move, bool]:
+        """
+        This method performs all the logic to categorize move as legal or illegal.
+
+        :param move: Move to be validated.
+        :type move: Move
+        :param board: Board on which the move is to be played.
+        :type board: Board
+        :return: Validated move.
+        :rtype: Move
+        """
+        move_to_validate.moved = board_state.get_piece_at(move_to_validate.source)
+        move_to_validate.captured = board_state.get_piece_at(move_to_validate.target)
+
+        if not self.is_move_legal(move_to_validate, board_state):
+            move_to_validate.legal = False
+
+        return move_to_validate, move_to_validate.legal
+
+    def is_move_legal(self, move: Move, board: Board) -> bool:
+        piece = move.moved
+
+        if piece is board.none_piece:
+            logger.error("No piece at %s", move.source)
+            raise NonePieceError(f"No piece at {move.source}")
+
+        if move.source == move.target:
+            log_msg = f"{str(move)} | Source and target are the same"
+            logger.warning(log_msg)
+            return False
+
+        if move.source != piece.position:
+            log_msg = f"{str(move)} | Source and piece position are different"
+            logger.warning(log_msg)
+            return False
+        if not piece.sliding:
+            if move.target not in [piece.position + offset for offset in piece.offsets]:
+                log_msg = f"{str(move)} | Move not in piece's offsets"
+                logger.warning(log_msg)
+                return False
+        else:
+            pass
+        return True
+
+if __name__ == "__main__":
+    from quasar.chess.pieces import PieceName, PieceFactory, PieceColor
+    from quasar.chess.utils import STARTING_FEN
+    board = Board()
+    board.load_fen(STARTING_FEN)
+    validator = Validator()
+    move = Move(PieceColor.WHITE, (1, 0), (2, 0))
+    print(validator(move, board))
 
 if __name__ == "__main__":
     pass
