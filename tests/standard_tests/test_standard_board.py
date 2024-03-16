@@ -1,4 +1,3 @@
-import pytest
 from quasar.chess.board import Board
 from quasar.chess.point import Point
 from quasar.chess.pieces import PieceName, PieceColor
