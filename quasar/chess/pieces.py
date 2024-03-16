@@ -5,8 +5,8 @@ which is responsible for managing the state of the pieces.
 
 from typing import Generator
 from enum import Enum
-from quasar.logger import logger
 import numpy as np
+from quasar.logger import logger
 from .point import Point
 
 class PieceColor(Enum):
@@ -54,7 +54,7 @@ class Piece:
         """
         self.unique_id = np.random.randint(0, 1000000000)
         self.name = name
-        logger.debug(f"Creating {self.name.name.lower()} with id: {self.unique_id}")
+        logger.debug("Creating %s with id: %s", self.name.name.lower(), self.unique_id)
         self.color = color
         if not isinstance(position, Point):
             raise TypeError(f"Position has to be of type point, got {type(position)} instead")
