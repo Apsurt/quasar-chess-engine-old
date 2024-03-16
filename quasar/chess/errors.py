@@ -10,6 +10,14 @@ class BaseChessError(Exception):
     :type Exception: Exception
     """
 
+class InvalidPlayerError(BaseChessError):
+    """
+    Raised when an invalid player is attempted.
+
+    :param BaseChessError: The base chess error class.
+    :type BaseChessError: BaseChessError
+    """
+
 class InvalidMoveError(BaseChessError):
     """
     Raised when an invalid move is attempted.
