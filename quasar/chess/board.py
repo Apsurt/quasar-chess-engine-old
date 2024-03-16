@@ -10,6 +10,7 @@ from .pieces import Piece, PieceFactory, PieceColor, PieceName
 from .moves import Move
 from .utils import fen_to_piece_name
 from .errors import InvalidMoveError
+from .move_validator import Validator
 
 class Board:
     """
@@ -26,6 +27,7 @@ class Board:
         self.factory = PieceFactory()
         self.none_piece = self.factory.create_piece(PieceName.NONE, Point(0, 0), PieceColor.NONE)
 
+        self.validator = Validator()
         self.last_concentration = Point(0, 0)
 
     def create_piece(self, name: PieceName, position: Point, color: PieceColor) -> Piece:
