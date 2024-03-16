@@ -9,7 +9,7 @@ import pygame
 import numpy as np
 from quasar.chess import Board, Point, PieceName, Piece
 from quasar.chess.utils import STARTING_FEN
-from .colors import BLACK_TILE, WHITE_TILE, SELECTED_TILE
+from .colors import BLACK_TILE, WHITE_TILE, SELECTED_TILE, ACCENT_COLOR
 
 class Game:
     """
@@ -110,9 +110,16 @@ class Game:
         """
         self.display.fill((255, 255, 255))
         selected_piece = self.board.get_piece_at(self.selected_tile)
-        possible_move_generator = self.board.get_possible_moves_generator(selected_piece)
         scaled_tile = self.scale * self.square_size
         visible_tiles = self.get_visible_tiles()
+        min_x_visible = min([tile.x for tile in visible_tiles])
+        max_x_visible = max([tile.x for tile in visible_tiles])
+        min_y_visible = min([tile.y for tile in visible_tiles])
+        max_y_visible = max([tile.y for tile in visible_tiles])
+        possible_move_generator = self.board.get_possible_moves_generator(
+            selected_piece,
+            Point(min_x_visible, min_y_visible),
+            Point(max_x_visible, max_y_visible))
         for tile in visible_tiles:
             color = WHITE_TILE if (tile.y%2) == (tile.x%2) else BLACK_TILE
             if tile == self.selected_tile:
@@ -129,6 +136,21 @@ class Game:
                 img = self.get_image(piece)
                 img = pygame.transform.smoothscale(img, (scaled_tile, scaled_tile))
                 self.display.blit(img, (x,y))
+        if not selected_piece.is_none() and selected_piece.color == self.board.current_player:
+            while True:
+                try:
+                    move = next(possible_move_generator)
+                    x = move.target.x * scaled_tile + self.offset.x
+                    y = move.target.y * scaled_tile + self.offset.y
+                    x = np.ceil(x)
+                    y = np.ceil(y)
+                    scaled_tile = np.ceil(scaled_tile)
+                    pygame.draw.circle(
+                        self.display, ACCENT_COLOR,
+                        (x + scaled_tile//2, y + scaled_tile//2),
+                        scaled_tile//4)
+                except StopIteration:
+                    break
 
     def update(self) -> None:
         """
@@ -149,6 +171,12 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         self.last_mouse = Point(*pygame.mouse.get_pos())
+                    if event.button == 3:
+                        mouse_pos = Point(*pygame.mouse.get_pos())
+                        tile = Point(
+                            int((mouse_pos.x - self.offset.x) // (self.scale * self.square_size)),
+                            int((mouse_pos.y - self.offset.y) // (self.scale * self.square_size)))
+                        self.selected_tile = tile
                 if event.type == pygame.MOUSEMOTION:
                     if event.buttons[0]:
                         mouse = Point(*pygame.mouse.get_pos())
