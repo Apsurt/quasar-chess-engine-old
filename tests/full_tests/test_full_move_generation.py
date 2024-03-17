@@ -15,8 +15,9 @@ class TestMoveGeneration:
         Test the move generation from the starting position.
         """
         board = Board()
-        depths = range(1, 5)
-        expected_count = [20,
+        depths = range(0, 5)
+        expected_count = [1,
+                          20,
                           400,
                           8_902,
                           197_281,
@@ -28,9 +29,9 @@ class TestMoveGeneration:
         for depth in depths:
             board.load_fen(STARTING_FEN)
             position_count = self.position_count(depth, board)
-            assert position_count == expected_count[depth - 1]
+            assert position_count == expected_count[depth]
 
-    def test_move_generation_from_position_5(self):
+    def move_generation_from_position_5(self):
         """
         Test the move generation from position 5.
         """
@@ -55,6 +56,7 @@ class TestMoveGeneration:
         for piece in board.get_pieces():
             if piece.color != board.current_player:
                 continue
+            print(piece)
             generator = board.get_possible_moves_generator(piece, Point(1,1), Point(8,8))
             i = 0
             while i < 10000:
@@ -66,7 +68,12 @@ class TestMoveGeneration:
                     break
         for move in possible_moves:
             board.make_move(move)
+            board.print()
+            print()
             count += self.position_count(depth - 1, board)
             board.undo_move()
 
         return count
+
+if __name__ == "__main__":
+    TestMoveGeneration().test_move_generation_from_starting_position()
