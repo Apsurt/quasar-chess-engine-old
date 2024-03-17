@@ -9,6 +9,8 @@ import pygame
 import numpy as np
 from quasar.chess import Board, Point, PieceName, Piece
 from quasar.chess.utils import STARTING_FEN
+from quasar.chess.moves import Move
+from quasar.chess.errors import InvalidMoveError
 from .colors import BLACK_TILE, WHITE_TILE, SELECTED_TILE, ACCENT_COLOR
 
 class Game:
@@ -104,6 +106,19 @@ class Game:
                     visible_tiles.append(tile)
         return visible_tiles
 
+    def get_tile_at_mouse(self) -> Point:
+        """
+        Get the tile at the mouse position.
+
+        :return: The tile at the mouse position.
+        :rtype: Point
+        """
+        mouse_pos = Point(*pygame.mouse.get_pos())
+        tile = Point(
+            int((mouse_pos.x - self.offset.x) // (self.scale * self.square_size)),
+            int((mouse_pos.y - self.offset.y) // (self.scale * self.square_size)))
+        return tile
+
     def draw_board(self) -> None:
         """
         Draw the board on the display.
@@ -159,42 +174,97 @@ class Game:
         self.draw_board()
         pygame.display.flip()
 
+    def handle_rmb(self, event: pygame.event.Event) -> None:
+        """
+        Handle the right mouse button event.
+
+        :param event: The event to handle.
+        :type event: pygame.event.Event
+        """
+        if event.button == 3:
+            self.last_mouse = Point(*pygame.mouse.get_pos())
+
+    def handle_lmb(self, event: pygame.event.Event) -> None:
+        """
+        Handle the left mouse button event.
+
+        :param event: The event to handle.
+        :type event: pygame.event.Event
+        """
+        if event.button == 1:
+            mouse_pos = Point(*pygame.mouse.get_pos())
+            tile = Point(
+                int((mouse_pos.x - self.offset.x) // (self.scale * self.square_size)),
+                int((mouse_pos.y - self.offset.y) // (self.scale * self.square_size)))
+
+            piece = self.board.get_piece_at(self.selected_tile)
+            if piece.name != PieceName.NONE and \
+                piece.color == self.board.current_player:
+                move = Move(piece.color, self.selected_tile, tile)
+                if self.board.is_possible_move(move):
+                    try:
+                        self.board.make_move(move)
+                    except InvalidMoveError:
+                        pass
+            if tile == self.selected_tile:
+                self.selected_tile = None
+            else:
+                self.selected_tile = tile
+
+    def handle_mousemotion(self, event: pygame.event.Event) -> None:
+        """
+        Handle the mouse motion event.
+
+        :param event: The event to handle.
+        :type event: pygame.event.Event
+        """
+        if event.buttons[2]:
+            mouse = Point(*pygame.mouse.get_pos())
+            self.offset += mouse - self.last_mouse
+            self.last_mouse = mouse
+
+    def handle_mousewheel(self, event: pygame.event.Event) -> None:
+        """
+        Handle the mouse wheel event.
+
+        :param event: The event to handle.
+        :type event: pygame.event.Event
+        """
+        self.scale *= 1 + event.y * 0.1
+        self.scale = max(0.1, self.scale)
+        self.scale = min(10, self.scale)
+        if self.scale == 0.1:
+            self.square_size *= 0.1
+            self.scale = 1
+        if self.scale == 10:
+            self.square_size *= 10
+            self.scale = 1
+
+    def handle_input(self) -> None:
+        """
+        Handle the input events.
+        """
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.handle_rmb(event)
+                self.handle_lmb(event)
+            if event.type == pygame.MOUSEMOTION:
+                self.handle_mousemotion(event)
+            if event.type == pygame.MOUSEWHEEL:
+                self.handle_mousewheel(event)
+
     def run(self) -> None:
         """
         Run the game loop.
         """
         running = True
         while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 3:
-                        self.last_mouse = Point(*pygame.mouse.get_pos())
-                    if event.button == 1:
-                        mouse_pos = Point(*pygame.mouse.get_pos())
-                        tile = Point(
-                            int((mouse_pos.x - self.offset.x) // (self.scale * self.square_size)),
-                            int((mouse_pos.y - self.offset.y) // (self.scale * self.square_size)))
-                        self.selected_tile = tile
-                if event.type == pygame.MOUSEMOTION:
-                    if event.buttons[2]:
-                        mouse = Point(*pygame.mouse.get_pos())
-                        self.offset += mouse - self.last_mouse
-                        self.last_mouse = mouse
-                if event.type == pygame.MOUSEWHEEL:
-                    self.scale *= 1 + event.y * 0.1
-                    self.scale = max(0.1, self.scale)
-                    self.scale = min(10, self.scale)
-                    if self.scale == 0.1:
-                        self.square_size *= 0.1
-                        self.scale = 1
-                    if self.scale == 10:
-                        self.square_size *= 10
-                        self.scale = 1
-
+            if pygame.event.get(pygame.QUIT):
+                running = False
+            self.handle_input()
             self.update()
-            pygame.display.set_caption(str(round(self.clock.get_fps(), 2)))
+            caption = str(round(self.clock.get_fps(), 2)) + str(self.get_tile_at_mouse())
+            pygame.display.set_caption(caption)
             self.clock.tick(self.fps)
         pygame.quit()
         sys.exit()
