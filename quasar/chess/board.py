@@ -223,6 +223,14 @@ class Board:
         unsilence()
 
     def is_possible_move(self, move_to_check: Move) -> bool:
+        """
+        Check if a move is possible.
+
+        :param move_to_check: The move to check.
+        :type move_to_check: Move
+        :return: True if the move is possible, False otherwise.
+        :rtype: bool
+        """
         move, is_legal = self.validator(move_to_check, self)
         piece = move.moved
         target = move.target
@@ -350,6 +358,17 @@ class Validator:
         return move_to_validate, move_to_validate.legal
 
     def is_move_legal(self, move: Move, board: Board) -> bool:
+        """
+        This method checks if a move is legal.
+
+        :param move: move to be checked.
+        :type move: Move
+        :param board: board on which the move is to be played.
+        :type board: Board
+        :raises NonePieceError: If there is no piece at the source of the move.
+        :return: True if the move is legal, False otherwise.
+        :rtype: bool
+        """
         piece = move.moved
         offset = move.target - move.source
 
