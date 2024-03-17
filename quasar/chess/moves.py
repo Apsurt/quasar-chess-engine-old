@@ -6,12 +6,17 @@ from dataclasses import dataclass
 from .pieces import PieceName, PieceColor, Piece
 from .point import Point
 
+NONE_PIECE = Piece(PieceName.NONE, Point(0,0), PieceColor.NONE)
+
 @dataclass
 class Move:
     """
     The Move class is responsible for storing the moves in the game.
     """
-    def __init__(self, color_to_move: PieceColor, source: Point, target: Point) -> None:
+    def __init__(self,
+                 color_to_move: PieceColor,
+                 source: Point,
+                 target: Point) -> None:
         """
         The constructor for the Move class.
 
@@ -22,12 +27,11 @@ class Move:
         :param target: tile to move to
         :type target: Point
         """
-        none_piece = Piece(PieceName.NONE, Point(0,0), PieceColor.NONE)
         self.color_to_move: PieceColor = color_to_move
         self.source: Point = source
         self.target: Point = target
-        self.moved: Piece = none_piece
-        self.captured: Piece = none_piece
+        self.moved: Piece = NONE_PIECE
+        self.captured: Piece = NONE_PIECE
         self.legal: bool = True
         self.flags: MoveFlags = MoveFlags()
 
