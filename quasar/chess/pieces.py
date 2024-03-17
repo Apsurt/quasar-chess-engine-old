@@ -147,6 +147,15 @@ class Piece:
         :rtype: bool
         """
         return self.color == PieceColor.BLACK
+    
+    def is_sliding(self) -> bool:
+        """
+        Checks if the piece is sliding.
+
+        :return: True or False
+        :rtype: bool
+        """
+        return self.sliding
 
     def is_promotion_square(self) -> bool:
         """
