@@ -23,6 +23,18 @@ def clear_logs() -> None:
         except OSError as e:
             print(f'Failed to delete {file_path}. Reason: {e}')
 
+def silence() -> None:
+    """
+    Silences the logger.
+    """
+    logger.setLevel(logging.CRITICAL)
+
+def unsilence() -> None:
+    """
+    Unsilences the logger.
+    """
+    logger.setLevel(logging.DEBUG)
+
 f_name = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
 logger = logging.getLogger('chess')
 logger.setLevel(logging.DEBUG)

@@ -6,6 +6,7 @@ It contains the main function and the test function.
 import argparse
 from typing import Dict
 import pytest
+from logger import clear_logs, silence, unsilence
 from gui import Game
 
 def main() -> None:
@@ -22,6 +23,7 @@ def test(flags: Dict) -> None:
     :param flags: A dictionary containing the flags for the test.
     :type flags: dict
     """
+    silence()
     local_flags = flags.copy()
     if not any(local_flags.values()):
         local_flags["st"] = True
@@ -41,7 +43,8 @@ def test(flags: Dict) -> None:
     if local_flags["ft"]:
         with open("pytest.ini", "w", encoding="UTF-8") as f:
             f.write("[pytest]\n")
-    pytest.main(["tests/"])
+    pytest.main(["tests/", "-v"])
+    unsilence()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -70,7 +73,6 @@ help="""Indicates the operation to be performed. Options: run, test, clear_logs"
     elif args.operation == "test":
         test(cmd_flags)
     elif args.operation == "clear_logs":
-        from logger import clear_logs
         clear_logs()
     else:
         print("Invalid command. Use -h for help.")
