@@ -1,3 +1,7 @@
+"""
+Test the move generation from different positions.
+"""
+
 from quasar.chess.board import Board
 from quasar.chess.point import Point
 from quasar.chess.utils import STARTING_FEN, POSITION_5_FEN
@@ -7,8 +11,11 @@ class TestMoveGeneration:
     Test the move generation from different positions.
     """
     def test_move_generation_from_starting_position(self):
+        """
+        Test the move generation from the starting position.
+        """
         board = Board()
-        depths = range(1, 2)
+        depths = range(1, 5)
         expected_count = [20,
                           400,
                           8_902,
@@ -21,11 +28,20 @@ class TestMoveGeneration:
         for depth in depths:
             board.load_fen(STARTING_FEN)
             position_count = self.position_count(depth, board)
-            print(position_count)
             assert position_count == expected_count[depth - 1]
 
     def test_move_generation_from_position_5(self):
-        assert True
+        """
+        Test the move generation from position 5.
+        """
+        board = Board()
+        depths = range(1, 2)
+        expected_count = [0,0,0,0,0,0]
+
+        for depth in depths:
+            board.load_fen(POSITION_5_FEN)
+            position_count = self.position_count(depth, board)
+            assert position_count == expected_count[depth - 1]
 
     def position_count(self, depth: int, board: Board) -> int:
         """
