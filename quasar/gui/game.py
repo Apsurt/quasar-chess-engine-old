@@ -169,16 +169,16 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        self.last_mouse = Point(*pygame.mouse.get_pos())
                     if event.button == 3:
+                        self.last_mouse = Point(*pygame.mouse.get_pos())
+                    if event.button == 1:
                         mouse_pos = Point(*pygame.mouse.get_pos())
                         tile = Point(
                             int((mouse_pos.x - self.offset.x) // (self.scale * self.square_size)),
                             int((mouse_pos.y - self.offset.y) // (self.scale * self.square_size)))
                         self.selected_tile = tile
                 if event.type == pygame.MOUSEMOTION:
-                    if event.buttons[0]:
+                    if event.buttons[2]:
                         mouse = Point(*pygame.mouse.get_pos())
                         self.offset += mouse - self.last_mouse
                         self.last_mouse = mouse
