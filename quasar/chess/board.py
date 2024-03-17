@@ -4,8 +4,8 @@ which is responsible for managing the state of the game board.
 """
 
 import math
-from typing import Tuple, Generator
-from quasar.logger import logger
+from typing import Tuple, Generator, List
+from quasar.logger import logger, silence, unsilence
 from quasar.chess.moves import Move
 from quasar.chess.errors import NonePieceError, InvalidMoveError, InvalidPlayerError
 from quasar.chess.point import Point
@@ -164,6 +164,23 @@ class Board:
                 return piece
         return self.none_piece
 
+    def find_pieces(self, name: PieceName, color: PieceColor) -> List[Piece]:
+        """
+        Find pieces on the board.
+
+        :param name: Name of the piece to find.
+        :type name: PieceName
+        :param color: Color of the piece to find.
+        :type color: PieceColor
+        :return: The pieces found.
+        :rtype: List[Piece]
+        """
+        pieces = []
+        for piece in self.pieces:
+            if piece.name == name and piece.color == color:
+                pieces.append(piece)
+        return pieces
+
     def get_possible_moves_generator(
         self, piece: Piece,
         bottom_left_bound: Point = Point(-999,-999),
@@ -175,6 +192,7 @@ class Board:
         :param piece: _description_
         :type piece: Piece
         """
+        silence()
         if piece.color != self.current_player:
             raise InvalidPlayerError(
                 f"Current player is {self.current_player.name}, but piece is {piece.color.name}")
@@ -194,6 +212,15 @@ class Board:
                     yield move
             else:
                 misfire += 1
+        if piece.is_king():
+            castling_moves = [
+            Move(piece.get_color(), piece.get_position(), piece.get_position() + Point(2,0)),
+            Move(piece.get_color(), piece.get_position(), piece.get_position() + Point(-2,0))]
+            for move in castling_moves:
+                move, is_legal = self.validator(move, self)
+                if is_legal:
+                    yield move
+        unsilence()
 
     def is_possible_move(self, move_to_check: Move) -> bool:
         move, is_legal = self.validator(move_to_check, self)
@@ -245,6 +272,16 @@ class Board:
             pass
         if legal_move.captured != self.none_piece:
             self.capture(legal_move.captured)
+        if legal_move.flags.castling:
+            offset = legal_move.target - legal_move.source
+            if offset.x > 0:
+                rook = self.get_piece_at(legal_move.source + Point(3,0))
+                rook.set_position(legal_move.source + Point(1,0))
+                rook.moved = True
+            else:
+                rook = self.get_piece_at(legal_move.source + Point(-4,0))
+                rook.set_position(legal_move.source + Point(-1,0))
+                rook.moved = True
 
     def undo_move(self) -> None:
         """
@@ -325,12 +362,30 @@ class Validator:
                 if abs(offset) == Point(1,1):
                     logger.warning("%s | Pawn can't move diagonally without capturing", str(move))
                     return False
+            else:
+                if abs(offset) != Point(1,1):
+                    logger.warning("%s | Pawn can't move forward without capturing", str(move))
+                    return False
 
         if piece.color == move.captured.color:
             logger.warning("%s | Can't capture own piece", str(move))
             return False
 
-        if piece.is_sliding():
+        if piece.is_king():
+            if offset == Point(2,0) and \
+            not piece.moved and \
+            not board.get_piece_at(move.source + Point(3,0)).moved and \
+            board.get_piece_at(move.source + Point(3,0)).name == PieceName.ROOK:
+                move.flags.castling = True
+            if offset == Point(-2,0) and \
+            not piece.moved and \
+            not board.get_piece_at(move.source + Point(-4,0)).moved and \
+            board.get_piece_at(move.source + Point(-4,0)).name == PieceName.ROOK:
+                move.flags.castling = True
+            if move.flags.castling:
+                logger.info("%s | Castling", str(move))
+
+        if piece.is_sliding() or (piece.is_king() and move.flags.castling):
             source = move.source.copy()
             target = move.target.copy()
             direction = target - source
@@ -339,9 +394,17 @@ class Validator:
             source += direction
             while source != target:
                 if board.get_piece_at(source).name != PieceName.NONE:
-                    logger.warning("%s | Path is blocked by %s", str(move), board.get_piece_at(source).name.name)
+                    logger.warning("%s | Path is blocked by %s",
+                                   str(move),
+                                   board.get_piece_at(source).name.name)
                     return False
                 source += direction
+
+        if piece.is_king():
+            if offset == Point(-2,0):
+                if board.get_piece_at(move.source + Point(-3,0)).name != PieceName.NONE:
+                    logger.warning("%s | Can't castle through pieces", str(move))
+                    return False
 
         if move.source == move.target:
             log_msg = f"{str(move)} | Source and target are the same"
@@ -355,9 +418,9 @@ class Validator:
 
         if not piece.sliding:
             if move.target not in [piece.position + offset for offset in piece.offsets]:
-                log_msg = f"{str(move)} | Move not in piece's offsets"
-                logger.warning(log_msg)
-                return False
-        else:
-            pass
+                if not move.flags.castling:
+                    log_msg = f"{str(move)} | Move not in piece's offsets"
+                    logger.warning(log_msg)
+                    return False
+
         return True
