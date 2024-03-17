@@ -161,7 +161,8 @@ class Piece:
             return self.position.y == 0
         return False
 
-    def get_offset_generator(self, bottom_left_bound, top_right_bound) -> Generator[Point, None, None]:
+    def get_offset_generator(self, bottom_left_bound,
+                             top_right_bound) -> Generator[Point, None, None]:
         """
         Creates a generator that yields offsets of the piece,
         acording to the way that the piece moves.
@@ -169,13 +170,21 @@ class Piece:
         :yield: offset
         :rtype: Point
         """
-        yield from self.offsets
+        for offset in self.offsets:
+            if bottom_left_bound.x <= self.position.x + offset.x <= top_right_bound.x and \
+               bottom_left_bound.y <= self.position.y + offset.y <= top_right_bound.y:
+                yield offset
         if self.sliding:
-            i = 1
-            while True:
+            misfire = 0
+            i = 0
+            while misfire < 100:
                 i += 1
                 for offset in self.offsets:
-                    yield offset * i
+                    if bottom_left_bound.x <= self.position.x + offset.x * i <= top_right_bound.x and \
+                       bottom_left_bound.y <= self.position.y + offset.y * i <= top_right_bound.y:
+                        yield offset * i
+                    else:
+                        misfire += 1
 
     def get_position(self) -> Point:
         """
