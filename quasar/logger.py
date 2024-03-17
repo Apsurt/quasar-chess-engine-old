@@ -8,6 +8,16 @@ import datetime
 import os
 import shutil
 
+class DuplicateFilter(logging.Filter):
+
+    def filter(self, record):
+        # add other fields if you need more granular comparison, depends on your app
+        current_log = (record.module, record.levelno, record.msg)
+        if current_log != getattr(self, "last_log", None):
+            self.last_log = current_log
+            return True
+        return False
+
 def clear_logs() -> None:
     """
     Clears the logs directory.
@@ -48,5 +58,7 @@ sh = logging.StreamHandler()
 sh.setLevel(logging.DEBUG)
 sh.setFormatter(formatter)
 logger.addHandler(sh)
+
+logger.addFilter(DuplicateFilter())
 
 logger.info('Logger initialized.')
