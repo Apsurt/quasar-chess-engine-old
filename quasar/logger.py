@@ -9,7 +9,12 @@ import os
 import shutil
 
 class DuplicateFilter(logging.Filter):
+    """
+    A filter to remove duplicate logs.
 
+    :param logging.Filter: The logging filter class.
+    :type logging.Filter: class
+    """
     def filter(self, record):
         # add other fields if you need more granular comparison, depends on your app
         current_log = (record.module, record.levelno, record.msg)
