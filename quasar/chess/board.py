@@ -4,7 +4,7 @@ which is responsible for managing the state of the game board.
 """
 
 import math
-from typing import Tuple
+from typing import Tuple, Generator
 from quasar.logger import logger
 from quasar.chess.moves import Move
 from quasar.chess.errors import NonePieceError, InvalidMoveError, InvalidPlayerError
@@ -164,9 +164,11 @@ class Board:
                 return piece
         return self.none_piece
 
-    def get_possible_moves_generator(self, piece: Piece,
-                                     bottom_left_bound: Point,
-                                     top_right_bound: Point):
+    def get_possible_moves_generator(
+        self, piece: Piece,
+        bottom_left_bound: Point = Point(-999,-999),
+        top_right_bound: Point = Point(999,999)
+        ) -> Generator[Move, None, None]:
         """
         _summary_
 
@@ -192,6 +194,21 @@ class Board:
                     yield move
             else:
                 misfire += 1
+
+    def is_possible_move(self, move_to_check: Move) -> bool:
+        move, is_legal = self.validator(move_to_check, self)
+        piece = move.moved
+        target = move.target
+        if is_legal:
+            generator = self.get_possible_moves_generator(piece)
+            while True:
+                try:
+                    move = next(generator)
+                    if move.target == target:
+                        return True
+                except StopIteration:
+                    return False
+        return False
 
     def capture(self, piece: Piece) -> None:
         """
@@ -290,15 +307,41 @@ class Validator:
 
         if not self.is_move_legal(move_to_validate, board_state):
             move_to_validate.legal = False
+        else:
+            move_to_validate.legal = True
 
         return move_to_validate, move_to_validate.legal
 
     def is_move_legal(self, move: Move, board: Board) -> bool:
         piece = move.moved
+        offset = move.target - move.source
 
         if piece is board.none_piece:
             logger.error("No piece at %s", move.source)
             raise NonePieceError(f"No piece at {move.source}")
+
+        if piece.name == PieceName.PAWN:
+            if move.captured.name == PieceName.NONE:
+                if abs(offset) == Point(1,1):
+                    logger.warning("%s | Pawn can't move diagonally without capturing", str(move))
+                    return False
+
+        if piece.color == move.captured.color:
+            logger.warning("%s | Can't capture own piece", str(move))
+            return False
+
+        if piece.is_sliding():
+            source = move.source.copy()
+            target = move.target.copy()
+            direction = target - source
+            direction.x = 1 if direction.x > 0 else -1 if direction.x < 0 else 0
+            direction.y = 1 if direction.y > 0 else -1 if direction.y < 0 else 0
+            source += direction
+            while source != target:
+                if board.get_piece_at(source).name != PieceName.NONE:
+                    logger.warning("%s | Path is blocked by %s", str(move), board.get_piece_at(source).name.name)
+                    return False
+                source += direction
 
         if move.source == move.target:
             log_msg = f"{str(move)} | Source and target are the same"
@@ -309,6 +352,7 @@ class Validator:
             log_msg = f"{str(move)} | Source and piece position are different"
             logger.warning(log_msg)
             return False
+
         if not piece.sliding:
             if move.target not in [piece.position + offset for offset in piece.offsets]:
                 log_msg = f"{str(move)} | Move not in piece's offsets"
@@ -317,15 +361,3 @@ class Validator:
         else:
             pass
         return True
-
-if __name__ == "__main__":
-    from quasar.chess.pieces import PieceName, PieceFactory, PieceColor
-    from quasar.chess.utils import STARTING_FEN
-    board = Board()
-    board.load_fen(STARTING_FEN)
-    validator = Validator()
-    move = Move(PieceColor.WHITE, (1, 0), (2, 0))
-    print(validator(move, board))
-
-if __name__ == "__main__":
-    pass
