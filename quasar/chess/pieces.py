@@ -302,6 +302,10 @@ class Pawn(Piece):
             self.offsets = [Point(0, 1), Point(-1, 1), Point(1, 1)]
             if not self.moved:
                 self.offsets.append(Point(0, 2))
+        if self.color == PieceColor.BLACK:
+            self.offsets = [Point(0, -1), Point(-1, -1), Point(1, -1)]
+            if not self.moved:
+                self.offsets.append(Point(0, -2))
 
 class Knight(Piece):
     """
