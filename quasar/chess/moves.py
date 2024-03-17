@@ -37,6 +37,9 @@ class Move:
 
     def __str__(self) -> str:
         return f"{self.moved} -> {repr(self.target)}"
+    
+    def __repr__(self) -> str:
+        return f"{self.moved} -> {repr(self.target)}"
 
 @dataclass
 class MoveFlags:
