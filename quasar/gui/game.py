@@ -11,7 +11,7 @@ from quasar.chess import Board, Point, PieceName, Piece
 from quasar.chess.utils import STARTING_FEN
 from quasar.chess.moves import Move
 from quasar.chess.errors import InvalidMoveError
-from .colors import BLACK_TILE, WHITE_TILE, SELECTED_TILE, ACCENT_COLOR
+from .colors import BLACK_TILE, WHITE_TILE, SELECTED_TILE, ACCENT_COLOR, CHECK_COLOR
 
 class Game:
     """
@@ -37,7 +37,7 @@ class Game:
         self.fps = 60
 
         self.load_images()
-    
+
     def board_to_pygame(self, point: Point) -> Point:
         """
         Convert a point from the board to the pygame coordinate system.
@@ -151,6 +151,10 @@ class Game:
             color = WHITE_TILE if (tile.y%2) == (tile.x%2) else BLACK_TILE
             if tile == self.selected_tile:
                 color = SELECTED_TILE
+            piece = self.board.get_piece_at(tile)
+            if piece.name == PieceName.KING:
+                if self.board.is_in_check(piece.color):
+                    color = CHECK_COLOR
             tile = self.board_to_pygame(tile)
             x = tile.x * scaled_tile + self.offset.x
             y = tile.y * scaled_tile + self.offset.y
@@ -165,23 +169,24 @@ class Game:
                 img = self.get_image(piece)
                 img = pygame.transform.smoothscale(img, (scaled_tile, scaled_tile))
                 self.display.blit(img, (x,y))
-        if not selected_piece.is_none() and selected_piece.color == self.board.current_player:
-            while True:
-                try:
-                    move = next(possible_move_generator)
-                    target = move.target
-                    target = self.board_to_pygame(move.target)
-                    x = target.x * scaled_tile + self.offset.x
-                    y = target.y * scaled_tile + self.offset.y
-                    x = np.ceil(x)
-                    y = np.ceil(y)
-                    scaled_tile = np.ceil(scaled_tile)
-                    pygame.draw.circle(
-                        self.display, ACCENT_COLOR,
-                        (x + scaled_tile//2, y + scaled_tile//2),
-                        scaled_tile//4)
-                except StopIteration:
-                    break
+        if not self.board.is_in_checkmate(self.board.current_player):
+            if not selected_piece.is_none() and selected_piece.color == self.board.current_player:
+                while True:
+                    try:
+                        move = next(possible_move_generator)
+                        target = move.target
+                        target = self.board_to_pygame(move.target)
+                        x = target.x * scaled_tile + self.offset.x
+                        y = target.y * scaled_tile + self.offset.y
+                        x = np.ceil(x)
+                        y = np.ceil(y)
+                        scaled_tile = np.ceil(scaled_tile)
+                        pygame.draw.circle(
+                            self.display, ACCENT_COLOR,
+                            (x + scaled_tile//2, y + scaled_tile//2),
+                            scaled_tile//4)
+                    except StopIteration:
+                        break
 
     def update(self) -> None:
         """
@@ -280,7 +285,9 @@ class Game:
                 running = False
             self.handle_input()
             self.update()
-            caption = str(round(self.clock.get_fps(), 2)) + str(self.get_tile_at_mouse())
+            caption = str(round(self.clock.get_fps(), 2)) + " " + str(self.get_tile_at_mouse())
+            if self.board.is_in_checkmate(self.board.current_player):
+                caption = "Checkmate!"
             pygame.display.set_caption(caption)
             self.clock.tick(self.fps)
         pygame.quit()
