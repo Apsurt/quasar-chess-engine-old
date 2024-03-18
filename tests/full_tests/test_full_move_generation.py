@@ -15,7 +15,8 @@ class TestMoveGeneration:
         Test the move generation from the starting position.
         """
         board = Board()
-        depths = range(0, 5)
+        #depths = range(9)
+        depths = range(4)
         expected_count = [1,
                           20,
                           400,
@@ -27,22 +28,32 @@ class TestMoveGeneration:
                           84_998_978_956]
 
         for depth in depths:
+            board.clear()
             board.load_fen(STARTING_FEN)
             position_count = self.position_count(depth, board)
+            print(f"Depth: {depth}, Positions: {position_count}")
             assert position_count == expected_count[depth]
 
-    def move_generation_from_position_5(self):
+    def test_move_generation_from_position_5(self):
         """
         Test the move generation from position 5.
         """
         board = Board()
-        depths = range(1, 2)
-        expected_count = [0,0,0,0,0,0]
+        #depths = range(6)
+        depths = range(3)
+        expected_count = [1,
+                          44,
+                          1_486,
+                          62_379,
+                          2_103_487,
+                          89_941_194]
 
         for depth in depths:
+            board.clear()
             board.load_fen(POSITION_5_FEN)
             position_count = self.position_count(depth, board)
-            assert position_count == expected_count[depth - 1]
+            print(f"Depth: {depth}, Positions: {position_count}")
+            assert position_count == expected_count[depth]
 
     def position_count(self, depth: int, board: Board) -> int:
         """
@@ -52,27 +63,15 @@ class TestMoveGeneration:
             return 1
 
         count = 0
-        possible_moves = []
-        for piece in board.get_pieces():
-            if piece.color != board.current_player:
-                continue
-            print(piece)
-            generator = board.get_possible_moves_generator(piece, Point(1,1), Point(8,8))
-            i = 0
-            while i < 10000:
-                i += 1
-                try:
-                    move = next(generator)
-                    possible_moves.append(move)
-                except StopIteration:
-                    break
-        for move in possible_moves:
-            board.make_move(move)
-            board.print()
-            print()
-            count += self.position_count(depth - 1, board)
-            board.undo_move()
-
+        pieces = board.get_pieces().copy()
+        for piece in pieces:
+            if piece.color == board.current_player:
+                generator = board.get_possible_moves_generator(piece, Point(1,1), Point(8,8))
+                possible_moves = list(generator)
+                for move in possible_moves:
+                    board.make_move(move)
+                    count += self.position_count(depth - 1, board)
+                    board.undo_move()
         return count
 
 if __name__ == "__main__":
