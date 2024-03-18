@@ -108,11 +108,38 @@ class Board:
         """
         self.pieces.remove(piece)
 
+    def clear(self) -> None:
+        """
+        Clear the board.
+        """
+        self.clear_pieces()
+        self.clear_moves()
+        self.clear_captured_pieces()
+        self.current_player = PieceColor.WHITE
+
+        self.factory = PieceFactory()
+        self.none_piece = self.factory.create_piece(PieceName.NONE, Point(0, 0), PieceColor.NONE)
+
+        self.validator = Validator()
+        self.last_concentration = Point(0, 0)
+
     def clear_pieces(self) -> None:
         """
         Clear the pieces from the board.
         """
         self.pieces = []
+    
+    def clear_moves(self) -> None:
+        """
+        Clear the moves from the board.
+        """
+        self.moves = []
+    
+    def clear_captured_pieces(self) -> None:
+        """
+        Clear the captured pieces from the board.
+        """
+        self.captured_pieces = []
 
     def get_concentration_position(self) -> Point:
         """
@@ -297,8 +324,10 @@ class Board:
         """
         move = self.moves.pop()
         move.moved.set_position(move.source)
-        self.pieces.append(move.captured)
+        if move.captured != self.none_piece:
+            self.pieces.append(move.captured)
         move.moved.moved = False
+        self.change_player()
         try:
             move.moved.update_offsets()
         except AttributeError:
