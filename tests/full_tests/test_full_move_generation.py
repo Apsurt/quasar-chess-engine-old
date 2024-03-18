@@ -15,34 +15,30 @@ class TestMoveGeneration:
         Test the move generation from the starting position.
         """
         board = Board()
-        #depths = range(9)
-        depths = range(4)
-        expected_count = [1,
-                          20,
+        #depths = range(1,7)
+        depths = range(1,4)
+        expected_count = [20,
                           400,
                           8_902,
                           197_281,
                           4_865_609,
-                          119_060_324,
-                          3_195_901_860,
-                          84_998_978_956]
+                          119_060_324]
 
         for depth in depths:
             board.clear()
             board.load_fen(STARTING_FEN)
             position_count = self.position_count(depth, board)
             print(f"Depth: {depth}, Positions: {position_count}")
-            assert position_count == expected_count[depth]
+            assert position_count == expected_count[depth-1]
 
     def test_move_generation_from_position_5(self):
         """
         Test the move generation from position 5.
         """
         board = Board()
-        #depths = range(6)
-        depths = range(3)
-        expected_count = [1,
-                          44,
+        #depths = range(1,6)
+        depths = range(1,3)
+        expected_count = [44,
                           1_486,
                           62_379,
                           2_103_487,
@@ -53,7 +49,7 @@ class TestMoveGeneration:
             board.load_fen(POSITION_5_FEN)
             position_count = self.position_count(depth, board)
             print(f"Depth: {depth}, Positions: {position_count}")
-            assert position_count == expected_count[depth]
+            assert position_count == expected_count[depth-1]
 
     def position_count(self, depth: int, board: Board) -> int:
         """
