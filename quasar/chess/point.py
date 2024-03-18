@@ -42,7 +42,7 @@ class Point:
             return Point(self.x+other.x, self.y+other.y)
         if isinstance(other, int):
             return Point(self.x+other, self.y+other)
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             return Point(self.x+other[0], self.y+other[1])
         if isinstance(other, list) and len(other) == 2:
             return Point(self.x+other[0], self.y+other[1])
@@ -58,7 +58,7 @@ class Point:
             self.x += other
             self.y += other
             return self
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             self.x += other[0]
             self.y += other[1]
             return self
@@ -74,7 +74,7 @@ class Point:
             return Point(self.x-other.x, self.y-other.y)
         if isinstance(other, int):
             return Point(self.x-other, self.y-other)
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             return Point(self.x-other[0], self.y-other[1])
         if isinstance(other, list):
             return Point(self.x-other[0], self.y-other[1])
@@ -90,7 +90,7 @@ class Point:
             self.x -= other
             self.y -= other
             return self
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             self.x -= other[0]
             self.y -= other[1]
             return self
@@ -106,7 +106,7 @@ class Point:
             return Point(self.x*other.x, self.y*other.y)
         if isinstance(other, int):
             return Point(self.x*other, self.y*other)
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             return Point(self.x*other[0], self.y*other[1])
         if isinstance(other, list):
             return Point(self.x*other[0], self.y*other[1])
@@ -122,7 +122,7 @@ class Point:
             self.x *= other
             self.y *= other
             return self
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             self.x *= other[0]
             self.y *= other[1]
             return self
@@ -138,7 +138,7 @@ class Point:
             return Point(self.x/other.x, self.y/other.y)
         if isinstance(other, int):
             return Point(self.x/other, self.y/other)
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             return Point(self.x/other[0], self.y/other[1])
         if isinstance(other, list):
             return Point(self.x/other[0], self.y/other[1])
@@ -154,7 +154,7 @@ class Point:
             self.x /= other
             self.y /= other
             return self
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             self.x /= other[0]
             self.y /= other[1]
             return self
@@ -170,7 +170,7 @@ class Point:
             return Point(self.x//other.x, self.y//other.y)
         if isinstance(other, int):
             return Point(self.x//other, self.y//other)
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             return Point(self.x//other[0], self.y//other[1])
         if isinstance(other, list):
             return Point(self.x//other[0], self.y//other[1])
@@ -186,7 +186,7 @@ class Point:
             self.x //= other
             self.y //= other
             return self
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             self.x //= other[0]
             self.y //= other[1]
             return self
@@ -202,7 +202,7 @@ class Point:
             return Point(self.x%other.x, self.y%other.y)
         if isinstance(other, int):
             return Point(self.x%other, self.y%other)
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             return Point(self.x%other[0], self.y%other[1])
         if isinstance(other, list):
             return Point(self.x%other[0], self.y%other[1])
@@ -218,7 +218,7 @@ class Point:
             self.x %= other
             self.y %= other
             return self
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             self.x %= other[0]
             self.y %= other[1]
             return self
@@ -234,7 +234,7 @@ class Point:
             return Point(self.x**other.x, self.y**other.y)
         if isinstance(other, int):
             return Point(self.x**other, self.y**other)
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             return Point(self.x**other[0], self.y**other[1])
         if isinstance(other, list):
             return Point(self.x**other[0], self.y**other[1])
@@ -250,7 +250,7 @@ class Point:
             self.x **= other
             self.y **= other
             return self
-        if isinstance(other, tuple):
+        if isinstance(other, tuple) and len(other) == 2:
             self.x **= other[0]
             self.y **= other[1]
             return self
