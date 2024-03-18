@@ -185,7 +185,6 @@ class Board:
         :return: The piece at the position.
         :rtype: Piece
         """
-        self.pieces.sort(key=lambda x: x.get_position() == position, reverse=True)
         for piece in self.pieces:
             if piece.get_position() == position:
                 return piece
