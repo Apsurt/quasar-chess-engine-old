@@ -26,7 +26,7 @@ class Game:
         self.display = pygame.display.set_mode((600, 600))
 
         self.square_size = self.display.get_width()//8
-        self.offset = Point(-self.square_size, -self.square_size)
+        self.offset = Point(-1,8) * self.square_size
         self.scale = 1
 
         self.selected_tile = None
@@ -37,6 +37,17 @@ class Game:
         self.fps = 60
 
         self.load_images()
+    
+    def board_to_pygame(self, point: Point) -> Point:
+        """
+        Convert a point from the board to the pygame coordinate system.
+
+        :param point: The point to convert.
+        :type point: Point
+        :return: The point in the pygame coordinate system.
+        :rtype: Point
+        """
+        return Point(point.x, -point.y)
 
     def load_images(self) -> list:
         """
@@ -117,7 +128,7 @@ class Game:
         tile = Point(
             int((mouse_pos.x - self.offset.x) // (self.scale * self.square_size)),
             int((mouse_pos.y - self.offset.y) // (self.scale * self.square_size)))
-        return tile
+        return self.board_to_pygame(tile)
 
     def draw_board(self) -> None:
         """
@@ -127,24 +138,27 @@ class Game:
         selected_piece = self.board.get_piece_at(self.selected_tile)
         scaled_tile = self.scale * self.square_size
         visible_tiles = self.get_visible_tiles()
-        min_x_visible = min([tile.x for tile in visible_tiles])
-        max_x_visible = max([tile.x for tile in visible_tiles])
-        min_y_visible = min([tile.y for tile in visible_tiles])
-        max_y_visible = max([tile.y for tile in visible_tiles])
+        min_x_visible = min([self.board_to_pygame(tile).x for tile in visible_tiles])
+        max_x_visible = max([self.board_to_pygame(tile).x for tile in visible_tiles])
+        min_y_visible = min([self.board_to_pygame(tile).y for tile in visible_tiles])
+        max_y_visible = max([self.board_to_pygame(tile).y for tile in visible_tiles])
         possible_move_generator = self.board.get_possible_moves_generator(
             selected_piece,
             Point(min_x_visible, min_y_visible),
             Point(max_x_visible, max_y_visible))
         for tile in visible_tiles:
+            tile = self.board_to_pygame(tile)
             color = WHITE_TILE if (tile.y%2) == (tile.x%2) else BLACK_TILE
             if tile == self.selected_tile:
                 color = SELECTED_TILE
+            tile = self.board_to_pygame(tile)
             x = tile.x * scaled_tile + self.offset.x
             y = tile.y * scaled_tile + self.offset.y
             x = np.ceil(x)
             y = np.ceil(y)
             scaled_tile = np.ceil(scaled_tile)
             pygame.draw.rect(self.display, color, (x, y, scaled_tile, scaled_tile))
+            tile = self.board_to_pygame(tile)
 
             piece = self.board.get_piece_at(tile)
             if piece.name != PieceName.NONE:
@@ -155,8 +169,10 @@ class Game:
             while True:
                 try:
                     move = next(possible_move_generator)
-                    x = move.target.x * scaled_tile + self.offset.x
-                    y = move.target.y * scaled_tile + self.offset.y
+                    target = move.target
+                    target = self.board_to_pygame(move.target)
+                    x = target.x * scaled_tile + self.offset.x
+                    y = target.y * scaled_tile + self.offset.y
                     x = np.ceil(x)
                     y = np.ceil(y)
                     scaled_tile = np.ceil(scaled_tile)
@@ -196,6 +212,7 @@ class Game:
             tile = Point(
                 int((mouse_pos.x - self.offset.x) // (self.scale * self.square_size)),
                 int((mouse_pos.y - self.offset.y) // (self.scale * self.square_size)))
+            tile = self.board_to_pygame(tile)
 
             piece = self.board.get_piece_at(self.selected_tile)
             if piece.name != PieceName.NONE and \
