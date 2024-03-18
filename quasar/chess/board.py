@@ -128,13 +128,13 @@ class Board:
         Clear the pieces from the board.
         """
         self.pieces = []
-    
+
     def clear_moves(self) -> None:
         """
         Clear the moves from the board.
         """
         self.moves = []
-    
+
     def clear_captured_pieces(self) -> None:
         """
         Clear the captured pieces from the board.
@@ -220,9 +220,9 @@ class Board:
         :type piece: Piece
         """
         silence()
-        if piece.color != self.current_player:
-            raise InvalidPlayerError(
-                f"Current player is {self.current_player.name}, but piece is {piece.color.name}")
+        #if piece.color != self.current_player:
+        #    raise InvalidPlayerError(
+        #        f"Current player is {self.current_player.name}, but piece is {piece.color.name}")
         offset_generator = piece.get_offset_generator(bottom_left_bound, top_right_bound)
         misfire = 0
         while misfire < 100:
@@ -234,7 +234,7 @@ class Board:
             if bottom_left_bound.x <= target.x <= top_right_bound.x and \
                 bottom_left_bound.y <= target.y <= top_right_bound.y:
                 move = Move(piece.get_color(), piece.get_position(), target)
-                move, is_legal = self.validator(move, self)
+                move, is_legal = self.validator(move, self, True)
                 if is_legal:
                     yield move
             else:
@@ -244,7 +244,7 @@ class Board:
             Move(piece.get_color(), piece.get_position(), piece.get_position() + Point(2,0)),
             Move(piece.get_color(), piece.get_position(), piece.get_position() + Point(-2,0))]
             for move in castling_moves:
-                move, is_legal = self.validator(move, self)
+                move, is_legal = self.validator(move, self, True)
                 if is_legal:
                     yield move
         unsilence()
@@ -282,16 +282,22 @@ class Board:
         self.captured_pieces.append(piece)
         self.pieces.remove(piece)
 
-    def make_move(self, move: Move) -> None:
+    def make_move(self, move: Move, check_if_legal: bool = True) -> None:
         """
         Makes a move on the board.
 
         :param validated_move: The move to make. Has to be legal.
         :type validated_move: Move
+        :param check_if_legal: If the move should be checked if it is legal.
+        :type check_if_legal: bool
         :raises InvalidMoveError: If the move is not legal.
         """
 
-        legal_move, is_legal = self.validator(move, self)
+        if check_if_legal:
+            legal_move, is_legal = self.validator(move, self)
+        else:
+            legal_move = move
+            is_legal = True
 
         if not is_legal:
             raise InvalidMoveError()
@@ -333,23 +339,26 @@ class Board:
         except AttributeError:
             pass
 
-    def is_check(self) -> bool:
+    def is_in_check(self, color: PieceColor) -> bool:
         """
-        Check if the current player is in check.
+        Check if a player is in check.
 
-        :return: True if the current player is in check, False otherwise.
+        :param color: The color of the player to check.
+        :type color: PieceColor
+        :return: True if the player is in check, False otherwise.
         :rtype: bool
         """
-        return self.moves[-1].check
+        king = self.find_pieces(PieceName.KING, color)[0]
+        for piece in self.pieces:
+            if piece.color != color:
+                generator = self.get_possible_moves_generator(piece, king.position, king.position)
+                for move in generator:
+                    if move.target == king.position:
+                        return True
+        return False
 
-    def is_checkmate(self) -> bool:
-        """
-        Check if the current player is in checkmate.
-
-        :return: True if the current player is in checkmate, False otherwise.
-        :rtype: bool
-        """
-        return self.moves[-1].checkmate
+    def is_in_checkmate(self, color: PieceColor) -> bool:
+        return False
 
     def print(self) -> None:
         """
@@ -365,7 +374,11 @@ class Validator:
     """
     This class is responsible for validating moves.
     """
-    def __call__(self, move_to_validate: Move, board_state: Board) -> Tuple[Move, bool]:
+    def __call__(self,
+                 move_to_validate: Move,
+                 board_state: Board,
+                 in_generator: bool = False
+                ) -> Tuple[Move, bool]:
         """
         This method performs all the logic to categorize move as legal or illegal.
 
@@ -373,20 +386,22 @@ class Validator:
         :type move: Move
         :param board: Board on which the move is to be played.
         :type board: Board
+        :param in_generator: If the method is called from a generator.
+        :type in_generator: bool
         :return: Validated move.
         :rtype: Move
         """
         move_to_validate.moved = board_state.get_piece_at(move_to_validate.source)
         move_to_validate.captured = board_state.get_piece_at(move_to_validate.target)
 
-        if not self.is_move_legal(move_to_validate, board_state):
+        if not self.is_move_legal(move_to_validate, board_state, in_generator):
             move_to_validate.legal = False
         else:
             move_to_validate.legal = True
 
         return move_to_validate, move_to_validate.legal
 
-    def is_move_legal(self, move: Move, board: Board) -> bool:
+    def is_move_legal(self, move: Move, board: Board, in_generator: bool = False) -> bool:
         """
         This method checks if a move is legal.
 
@@ -394,6 +409,8 @@ class Validator:
         :type move: Move
         :param board: board on which the move is to be played.
         :type board: Board
+        :param in_generator: If the method is called from a generator.
+        :type in_generator: bool
         :raises NonePieceError: If there is no piece at the source of the move.
         :return: True if the move is legal, False otherwise.
         :rtype: bool
@@ -470,5 +487,24 @@ class Validator:
                     log_msg = f"{str(move)} | Move not in piece's offsets"
                     logger.warning(log_msg)
                     return False
+
+        if not in_generator:
+            board.make_move(move, False)
+            if piece.color == PieceColor.WHITE:
+                next_move_pieces = board.get_black_pieces().copy()
+            else:
+                next_move_pieces = board.get_white_pieces().copy()
+            for p in next_move_pieces:
+                generator = board.get_possible_moves_generator(p, Point(1,1), Point(8,8))
+                next_moves = list(generator)
+                for next_move in next_moves:
+                    board.make_move(next_move, False)
+                    if next_move.captured.is_king():
+                        logger.warning("%s | King is in check", str(move))
+                        board.undo_move()
+                        board.undo_move()
+                        return False
+                    board.undo_move()
+            board.undo_move()
 
         return True
