@@ -487,23 +487,47 @@ class Validator:
                     logger.warning(log_msg)
                     return False
 
-        if not in_generator:
-            board.make_move(move, False)
-            if piece.color == PieceColor.WHITE:
-                next_move_pieces = board.get_black_pieces().copy()
-            else:
-                next_move_pieces = board.get_white_pieces().copy()
-            for p in next_move_pieces:
-                generator = board.get_possible_moves_generator(p, Point(1,1), Point(8,8))
-                next_moves = list(generator)
-                for next_move in next_moves:
-                    board.make_move(next_move, False)
-                    if next_move.captured.is_king():
-                        logger.warning("%s | King is in check", str(move))
-                        board.undo_move()
+        board.make_move(move, False)
+        
+        enemy_pieces = board.get_black_pieces() if piece.color == PieceColor.WHITE else board.get_white_pieces()
+        
+        for enemy_piece in enemy_pieces:
+            offset_generator = enemy_piece.get_offset_generator(Point(1,1), Point(8,8))
+            for offset in offset_generator:
+                target_checked = board.get_piece_at(enemy_piece.position + offset)
+                if not target_checked.is_king():
+                    continue
+                if enemy_piece.is_sliding():
+                    source = enemy_piece.position.copy()
+                    target = target_checked.position.copy()
+                    direction = target - source
+                    direction.x = 1 if direction.x > 0 else -1 if direction.x < 0 else 0
+                    direction.y = 1 if direction.y > 0 else -1 if direction.y < 0 else 0
+                    source += direction
+                    while source != target:
+                        if board.get_piece_at(source).name != PieceName.NONE:
+                            break
+                        source += direction
+                    if source != target:
+                        continue
+                    if target_checked.is_king() and \
+                        enemy_piece.color != target_checked.color:
+                        logger.warning("%s | Can't move, sliding checks.", str(move))
                         board.undo_move()
                         return False
-                    board.undo_move()
-            board.undo_move()
+                if enemy_piece.is_pawn() and abs(offset) == Point(1,1):
+                    if target_checked.is_king() and \
+                        enemy_piece.color != target_checked.color:
+                        logger.warning("%s | Can't move, pawn checks.", str(move))
+                        board.undo_move()
+                        return False
+                elif enemy_piece.is_knight():
+                    if target_checked.is_king() and \
+                        enemy_piece.color != target_checked.color:
+                        logger.warning("%s | Can't move, knight checks.", str(move))
+                        board.undo_move()
+                        return False
+        
+        board.undo_move()
 
         return True
